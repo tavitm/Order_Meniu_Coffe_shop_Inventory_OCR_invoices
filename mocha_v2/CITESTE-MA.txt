@@ -1,0 +1,35 @@
+MENIU C HOUSE CAFE + ADMINISTRARE
+=================================
+
+Meniul public: http://tudorheritage.ro/mocha/
+Administrare:  http://tudorheritage.ro/mocha/admin/
+
+INSTALARE (o singură dată)
+1. Deschide admin/config.php și scrie parola între ghilimele:
+       const ADMIN_PASSWORD = 'parola-ta-aici';
+   Minimum 10 caractere. Cât timp e goală, nimeni nu poate intra.
+2. Urcă prin FTP tot folderul „mocha” în public_html/
+   (rezultat: public_html/mocha/index.html, public_html/mocha/admin/ ...).
+   Fișierele .htaccess sunt ascunse pe Mac: în Finder apasă Cmd+Shift+. ca să le vezi
+   și asigură-te că le urci și pe ele.
+3. În cPanel → „Select PHP Version” (sau „MultiPHP Manager”): PHP 8.1 sau mai nou.
+4. Folderele data/ și uploads/ trebuie să poată fi scrise de PHP
+   (de obicei permisiuni 755 ajung; dacă salvarea dă eroare, încearcă 775).
+5. Recomandat: activează HTTPS (cPanel → SSL/TLS Status → AutoSSL, gratuit),
+   altfel parola circulă necriptat.
+
+CUM FUNCȚIONEAZĂ
+- Tot meniul stă în data/menu.json. Admin-ul îl rescrie la fiecare „Salvează”.
+- La fiecare salvare se păstrează o copie în data/backups/ (ultimele 30).
+- Tab-ul „Backup” din admin: creezi backup-uri manuale (cu nume), restaurezi orice backup
+  cu un click, descarci backup-ul pe calculator (include și imaginile) și îl poți
+  restaura ulterior din fișier. Se salvează/restaurează DOAR datele meniului
+  (produse, prețuri, categorii afișate/ascunse, imaginea ofertei, setări), nu codul site-ului.
+- Imaginile încărcate din admin ajung în uploads/ (JPG, PNG, WEBP, GIF, max. 5 MB).
+- Imaginea ofertei (bannerul de deasupra categoriilor) se schimbă din tab-ul „Imagine ofertă”.
+- Prețurile se scriu doar cu cifre (ex. 14 sau 15.50); moneda se setează în tab-ul „Setări”.
+- Categoriile sau produsele ascunse nu apar în meniu, dar rămân în admin.
+  O categorie fără niciun produs afișat nu apare deloc.
+
+ATENȚIE: când urci din nou fișierele pe server, NU suprascrie data/menu.json
+și folderul uploads/, altfel pierzi modificările făcute din admin.

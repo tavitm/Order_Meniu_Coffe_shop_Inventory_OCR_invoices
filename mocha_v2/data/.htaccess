@@ -1,0 +1,6 @@
+Options -Indexes
+<IfModule mod_headers.c>
+  <Files "menu.json">
+    Header set Cache-Control "no-cache"
+  </Files>
+</IfModule>

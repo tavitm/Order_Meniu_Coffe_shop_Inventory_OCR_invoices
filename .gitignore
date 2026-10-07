@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Parola reală: se păstrează doar local și pe server (vezi admin/config.example.php)
+mocha_v2/admin/config.php
+
+# Copiile automate de siguranță ale meniului (se generează pe server)
+mocha_v2/data/backups/*.json
+!mocha_v2/data/backups/.htaccess
+
+# Fișiere temporare de la salvare
+*.tmp-*
+
+# Jurnale de erori PHP de pe server
+error_log

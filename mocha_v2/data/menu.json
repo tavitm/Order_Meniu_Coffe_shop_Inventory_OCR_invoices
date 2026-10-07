@@ -1,0 +1,1816 @@
+{
+    "settings": {
+        "title": "Mocha Cafe | Meniu",
+        "currency": "lei",
+        "logo": "assets/Logo_mocha_800.png",
+        "banner": {
+            "visible": false,
+            "image": "uploads/chouse-dorna.webp",
+            "alt": ""
+        },
+        "footer": {
+            "days": "Luni - Duminică",
+            "hours": "10:00 AM – 10:00 PM"
+        }
+    },
+    "categories": [
+        {
+            "id": "c1",
+            "name": "Softdrinks",
+            "visible": true,
+            "items": [
+                {
+                    "id": "p1",
+                    "name": "Coca-Cola",
+                    "subheader": "250 ml",
+                    "description": "Gust Original",
+                    "price": "14",
+                    "image": "uploads/cc-regular.webp",
+                    "visible": true
+                },
+                {
+                    "id": "p2",
+                    "name": "Coca-Cola",
+                    "subheader": "250 ml",
+                    "description": "Zero Zahăr",
+                    "price": "14",
+                    "image": "uploads/cc-zero.webp",
+                    "visible": true
+                },
+                {
+                    "id": "p3",
+                    "name": "Coca-Cola Zero Zero",
+                    "subheader": "250 ml",
+                    "description": "Zero Cofeină, Zero Zahăr, Zero Calorii",
+                    "price": "14",
+                    "image": "uploads/cczzc-250ml.webp",
+                    "visible": true
+                },
+                {
+                    "id": "p4",
+                    "name": "Fanta",
+                    "subheader": "250 ml",
+                    "description": "Orange",
+                    "price": "14",
+                    "image": "uploads/fanta-portocale.webp",
+                    "visible": true
+                },
+                {
+                    "id": "p5",
+                    "name": "Sprite",
+                    "subheader": "250 ml",
+                    "description": "Rămâi fresh",
+                    "price": "14",
+                    "image": "uploads/sprite.webp",
+                    "visible": true
+                },
+                {
+                    "id": "p6",
+                    "name": "Schweppes",
+                    "subheader": "250 ml",
+                    "description": "Tonic, Pink, Bitter Lemon, Mandarin",
+                    "price": "14",
+                    "image": "uploads/schweppes.webp",
+                    "visible": true
+                },
+                {
+                    "id": "p7",
+                    "name": "Fuzetea",
+                    "subheader": "250 ml",
+                    "description": "Piersici, Lamaie",
+                    "price": "14",
+                    "image": "uploads/fuzetea.webp",
+                    "visible": true
+                },
+                {
+                    "id": "p8",
+                    "name": "Cappy Nectar",
+                    "subheader": "250 ml",
+                    "description": "Portocale, Piersici, Pere",
+                    "price": "14",
+                    "image": "uploads/cappy-portocale.webp",
+                    "visible": true
+                },
+                {
+                    "id": "p9",
+                    "name": "Dorna plată, Dorna apă carbogazoasă",
+                    "subheader": "330 ml",
+                    "description": "Izvorul Alb",
+                    "price": "12",
+                    "image": "uploads/dorna-izvorul-alb.webp",
+                    "visible": true
+                },
+                {
+                    "id": "p10",
+                    "name": "Dorna plată, Dorna apă carbogazoasă",
+                    "subheader": "500 ml",
+                    "description": "Izvorul Alb",
+                    "price": "12",
+                    "image": "uploads/dorna-pet.webp",
+                    "visible": true
+                },
+                {
+                    "id": "p11",
+                    "name": "Burn",
+                    "subheader": "250 ml",
+                    "description": "Energy Drink",
+                    "price": "14",
+                    "image": "uploads/burn-original.webp",
+                    "visible": true
+                },
+                {
+                    "id": "p12",
+                    "name": "RedBull",
+                    "subheader": "250 ml",
+                    "description": "Redbull, Redbull Sugar Free",
+                    "price": "15",
+                    "image": "uploads/redbull.gif",
+                    "visible": true
+                },
+                {
+                    "id": "p13",
+                    "name": "C House Ice Tea",
+                    "subheader": "350 ml",
+                    "description": "Ceai rece de lămâie / piersici, fructe proaspete și gheață",
+                    "price": "23",
+                    "image": "",
+                    "visible": false
+                }
+            ]
+        },
+        {
+            "id": "c2",
+            "name": "Breakfast",
+            "visible": false,
+            "items": [
+                {
+                    "id": "p14",
+                    "name": "C House Breakfast",
+                    "subheader": "240 ml/250 ml/70 g",
+                    "description": "Marlenka, cappuccino și fresh de portocale",
+                    "price": "47",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p15",
+                    "name": "Italian Breakfast",
+                    "subheader": "240 ml/250 ml",
+                    "description": "Cappuccino și fresh de portocale",
+                    "price": "35",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p16",
+                    "name": "Milk",
+                    "subheader": "250 ml",
+                    "description": "Lapte și miere",
+                    "price": "12",
+                    "image": "",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "id": "c3",
+            "name": "Signature Coffees",
+            "visible": true,
+            "items": [
+                {
+                    "id": "p17",
+                    "name": "Caffe Espresso",
+                    "subheader": "45 ml",
+                    "description": "",
+                    "price": "14",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p18",
+                    "name": "Espresso Ristretto",
+                    "subheader": "20 ml",
+                    "description": "Autenticul Espresso într-o doză mică, cu puțină cofeină",
+                    "price": "14",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p19",
+                    "name": "Espresso Dopio",
+                    "subheader": "60 ml",
+                    "description": "Espresso intens cu două doze de cafea",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p20",
+                    "name": "Espresso Lungo",
+                    "subheader": "60 ml",
+                    "description": "Espresso bogat în cofeină",
+                    "price": "14",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p21",
+                    "name": "Espresso Macchiato Caldo",
+                    "subheader": "45 ml",
+                    "description": "Espresso cu un shot de cremă de lapte",
+                    "price": "15",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p22",
+                    "name": "Espresso con Panna",
+                    "subheader": "110 ml",
+                    "description": "Espresso acoperit cu frișcă",
+                    "price": "16",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p23",
+                    "name": "Caffe Affogato",
+                    "subheader": "120 ml",
+                    "description": "Plăcerea unică a unui espresso fierbinte, cu înghețată de vanilie",
+                    "price": "18",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p24",
+                    "name": "Cappuccino",
+                    "subheader": "200 ml",
+                    "description": "O doză de espresso cu cremă de lapte",
+                    "price": "17",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p25",
+                    "name": "Cappucino Vienez",
+                    "subheader": "200 ml",
+                    "description": "O doză de espresso italian cu cremă de lapte și friscă",
+                    "price": "19",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p26",
+                    "name": "Caffe Latte",
+                    "subheader": "240 ml",
+                    "description": "Espresso cu lapte cald",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p27",
+                    "name": "Caramel Macchiato",
+                    "subheader": "240 ml",
+                    "description": "Espresso C House cu cremă de lapte și sirop de caramel",
+                    "price": "21",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p28",
+                    "name": "Mocha",
+                    "subheader": "200 ml",
+                    "description": "Espresso italian cu sos de ciocolată neagră și cremă de lapte",
+                    "price": "21",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p29",
+                    "name": "American C House Coffee",
+                    "subheader": "240 ml",
+                    "description": "Espresso italian C House cu sos de ciocolată albă / neagră și cremă de lapte",
+                    "price": "15",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p30",
+                    "name": "Flat White",
+                    "subheader": "200 ml",
+                    "description": "Două doze de espresso italian cu cremă de lapte",
+                    "price": "22",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p31",
+                    "name": "Latte Machiato",
+                    "subheader": "350 ml",
+                    "description": "Lapte cald cu Espresso și cremă de lapte",
+                    "price": "21",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p32",
+                    "name": "Latte Machiato Aromatizzato",
+                    "subheader": "350 ml",
+                    "description": "Lapte cald cu Espresso, arome: caramel, vanilie, cocos, tiramisu, fistic.",
+                    "price": "21",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p33",
+                    "name": "Cappuccino Aromatizzato",
+                    "subheader": "200 ml",
+                    "description": "Espresso cu cremă de lapte, frișcă și o aromă la alegere caramel, vanilie, tiramisu, ciocolată, cocos",
+                    "price": "18",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p34",
+                    "name": "Mochaccino",
+                    "subheader": "240 ml",
+                    "description": "Espresso cu ciocolată caldă, sos de ciocolată și frișcă",
+                    "price": "21",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p35",
+                    "name": "Marocchino",
+                    "subheader": "45 ml",
+                    "description": "Espresso Italian cu cremă de lapte și cacao",
+                    "price": "19",
+                    "image": "",
+                    "visible": false
+                }
+            ]
+        },
+        {
+            "id": "c4",
+            "name": "Hot Chocolate",
+            "visible": true,
+            "items": [
+                {
+                    "id": "p36",
+                    "name": "Hot Chocolate",
+                    "subheader": "250 ml",
+                    "description": "Ciocolată caldă albă, albă cu alune, neagră cu frișcă",
+                    "price": "21",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p37",
+                    "name": "Choco Flavours",
+                    "subheader": "250 ml",
+                    "description": "Ciocolată caldă albă / neagră C House cu frișcă și caramel / Amaretto / căpşuni/ mentă / alune",
+                    "price": "23",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p38",
+                    "name": "Amaretto Chocolate",
+                    "subheader": "250 ml",
+                    "description": "Ciocolată caldă albă / neagră C House cu lichior Amaretto şi frișcă",
+                    "price": "23",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p39",
+                    "name": "Hazelnut Chocolate",
+                    "subheader": "250 ml",
+                    "description": "Ciocolată caldă C House și lichior de alune",
+                    "price": "23",
+                    "image": "",
+                    "visible": false
+                }
+            ]
+        },
+        {
+            "id": "c5",
+            "name": "Signature Frappe",
+            "visible": true,
+            "items": [
+                {
+                    "id": "p40",
+                    "name": "Frappe Espresso",
+                    "subheader": "350 ml",
+                    "description": "Espresso C House cu gheață pisată și Zuma",
+                    "price": "22",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p41",
+                    "name": "Frappe Mocha",
+                    "subheader": "350 ml",
+                    "description": "Amestecul dulce și cremos al unui Espresso Italian C House, Zuma, gheață pisată și sos de ciocolată albă / neagră",
+                    "price": "22",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p42",
+                    "name": "Frappe Caramel",
+                    "subheader": "350 ml",
+                    "description": "Amestecul dulce și cremos al unui Espresso Italian C House, Zuma, gheață pisată și sos de caramel",
+                    "price": "22",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p43",
+                    "name": "Vanilla Double Cream",
+                    "subheader": "350 ml",
+                    "description": "Espresso C House cu aromă de vanilie, sos de vanilie, Zuma și gheață pisată, decorat cu frișcă",
+                    "price": "23",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p44",
+                    "name": "Caramel Double Cream",
+                    "subheader": "350 ml",
+                    "description": "Espresso C House cu aromă de caramel, sos de caramel, Zuma și gheață pisată, decorat cu frișcă",
+                    "price": "23",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p46",
+                    "name": "Greek Frappe",
+                    "subheader": "250 ml",
+                    "description": "Cafea instant, zahăr, apă plată și gheață",
+                    "price": "21",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p47",
+                    "name": "Amaretto Frappe",
+                    "subheader": "250 ml",
+                    "description": "Cafea instant, zahăr, lapte, sos de caramel, lichior Amaretto, frișcă și gheață",
+                    "price": "23",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p48",
+                    "name": "Bailey’s Frappe",
+                    "subheader": "250 ml",
+                    "description": "Cafea instant, zahăr, lapte, sos de ciocolată albă, lichior Bailey's, frișcă și gheață",
+                    "price": "23",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p50",
+                    "name": "Ice Cream Frappe",
+                    "subheader": "350 ml",
+                    "description": "Cafea instant, zahăr, lapte, înghețată la alegere, toping și frișcă",
+                    "price": "26",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p45",
+                    "name": "Frappe Classic Aromatizzato",
+                    "subheader": "350 ml",
+                    "description": "Cafea instant, zahăr, aroma la alegere, lapte, toping și frișcă",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p49",
+                    "name": "Frappe Classic",
+                    "subheader": "350 ml",
+                    "description": "Cafea instant, zahăr, lapte, toping și frișcă",
+                    "price": "22",
+                    "image": "",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "id": "c6",
+            "name": "Alcoholic Coffees",
+            "visible": false,
+            "items": [
+                {
+                    "id": "p51",
+                    "name": "Irish Coffee",
+                    "subheader": "150 ml",
+                    "description": "Whiskey irlandez, Espresso C House, frișcă și zahăr brun",
+                    "price": "26",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p52",
+                    "name": "Bailey’s Coffee",
+                    "subheader": "150 ml",
+                    "description": "Bailey's, espresso C House și frișcă",
+                    "price": "26",
+                    "image": "",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "id": "c7",
+            "name": "Iced Coffees",
+            "visible": true,
+            "items": [
+                {
+                    "id": "p53",
+                    "name": "Iced Caffe Latte",
+                    "subheader": "240 ml",
+                    "description": "Espresso Italian cu lapte rece și gheață",
+                    "price": "21",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p54",
+                    "name": "Iced Vanilla Macchiato",
+                    "subheader": "240 ml",
+                    "description": "Espresso C House cu aromă de vanilie, lapte rece, frișcă și gheață",
+                    "price": "23",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p55",
+                    "name": "Iced Coffe Aromatizzato",
+                    "subheader": "240 ml",
+                    "description": "Espresso cu aromă de caramel, vanilie, cocos, tiramisu, lapte rece, frișcă și gheață",
+                    "price": "23",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p56",
+                    "name": "Iced Mocha Macchiato",
+                    "subheader": "240 ml",
+                    "description": "Unicul espresso C House cu ciocolată neagră, lapte rece, frișcă și gheață",
+                    "price": "23",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p57",
+                    "name": "Cappucino Fredo",
+                    "subheader": "350 ml",
+                    "description": "Espresso C House cu gheață, acoperit cu cremă fină de lapte rece",
+                    "price": "20",
+                    "image": "",
+                    "visible": false
+                }
+            ]
+        },
+        {
+            "id": "c8",
+            "name": "Fresh Juice",
+            "visible": true,
+            "items": [
+                {
+                    "id": "p58",
+                    "name": "Orange Fresh Juice",
+                    "subheader": "250 ml",
+                    "description": "Suc proaspăt de portocale / grapefruit/mere/ morcovi",
+                    "price": "24",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p59",
+                    "name": "Pineapple Fresh",
+                    "subheader": "250 ml",
+                    "description": "Suc proaspăt de ananas",
+                    "price": "30",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p60",
+                    "name": "Grapefruit Fresh",
+                    "subheader": "250 ml",
+                    "description": "Suc proaspăt de portocale, mere și căpşuni",
+                    "price": "24",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p61",
+                    "name": "Spicy Mix",
+                    "subheader": "250 ml",
+                    "description": "Suc proaspăt de portocale și ghimbir",
+                    "price": "25",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p62",
+                    "name": "Greek Mix",
+                    "subheader": "250 ml",
+                    "description": "Suc proaspăt de portocale și banane",
+                    "price": "25",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p63",
+                    "name": "African Mix",
+                    "subheader": "250 ml",
+                    "description": "Suc proaspăt de mere, banane și căpşuni",
+                    "price": "25",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p64",
+                    "name": "Green Mix",
+                    "subheader": "250 ml",
+                    "description": "Suc proaspăt de mere și kiwi",
+                    "price": "25",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p65",
+                    "name": "Fresh Mix",
+                    "subheader": "250 ml",
+                    "description": "Suc proaspăt de portocale și grapefruit, ananas",
+                    "price": "25",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p66",
+                    "name": "Healthy Mix",
+                    "subheader": "250 ml",
+                    "description": "Suc proaspăt de măr și morcov",
+                    "price": "25",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p67",
+                    "name": "The Best Mix",
+                    "subheader": "250 ml",
+                    "description": "Suc proaspăt de ananas, măr și morcov",
+                    "price": "25",
+                    "image": "",
+                    "visible": false
+                }
+            ]
+        },
+        {
+            "id": "c9",
+            "name": "Lemonade",
+            "visible": true,
+            "items": [
+                {
+                    "id": "p68",
+                    "name": "Classic Lemonade",
+                    "subheader": "250 ml",
+                    "description": "Fresh de lămâie, miere și apă plată",
+                    "price": "23",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p69",
+                    "name": "Ginger Lemonade",
+                    "subheader": "250 ml",
+                    "description": "Fresh de lămâie, miere și apă plată",
+                    "price": "25",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p70",
+                    "name": "Lemo Mint",
+                    "subheader": "250 ml",
+                    "description": "Fresh de lămâie, miere, mentă proaspătă și apă plată",
+                    "price": "25",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p71",
+                    "name": "Fruits Lemonade",
+                    "subheader": "250 ml",
+                    "description": "Limonadă cu zmeură / fructul pasiunii / pepene roșu/ căpşuni / mango",
+                    "price": "26",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p72",
+                    "name": "Strawberry Freeze",
+                    "subheader": "250 ml",
+                    "description": "Căpşuni, piure de căpşuni și gheață zdrobită",
+                    "price": "26",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p73",
+                    "name": "Melon Freeze",
+                    "subheader": "350 ml",
+                    "description": "Pepene galben, piure de pepene galben și gheață zdrobită",
+                    "price": "26",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p74",
+                    "name": "Kiwi Freeze",
+                    "subheader": "350 ml",
+                    "description": "Kiwi, piure de kiwi și gheață zdrobită",
+                    "price": "26",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p75",
+                    "name": "Tropical Mango Freeze",
+                    "subheader": "350 ml",
+                    "description": "Mango, banană, piure de mango, sirop de vanilie, fresh de lămâie și gheață zdrobită",
+                    "price": "28",
+                    "image": "",
+                    "visible": false
+                }
+            ]
+        },
+        {
+            "id": "c10",
+            "name": "Smoothies & Milkshakes",
+            "visible": true,
+            "items": [
+                {
+                    "id": "p76",
+                    "name": "Mellow",
+                    "subheader": "400 ml",
+                    "description": "Piure de pepene galben, grenadine, suc de portocale roșii și gheață",
+                    "price": "35",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p77",
+                    "name": "Red Cloud",
+                    "subheader": "400 ml",
+                    "description": "Piure de banane și căpşuni, suc de ananas și gheață",
+                    "price": "35",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p78",
+                    "name": "Green Ice",
+                    "subheader": "400 ml",
+                    "description": "Măr verde, piure de kiwi, piure de banane și suc de ananas",
+                    "price": "35",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p79",
+                    "name": "Sunshine",
+                    "subheader": "400 ml",
+                    "description": "Fructul pasiunii, piure de căpşuni, piure de pepene galben, suc de portocale și gheață",
+                    "price": "35",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p80",
+                    "name": "November Seabreeze",
+                    "subheader": "400 ml",
+                    "description": "Piure de fructe de pădure, piure de banane, suc de portocale roșii și gheață",
+                    "price": "35",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p81",
+                    "name": "Exotic",
+                    "subheader": "400 ml",
+                    "description": "Piure de kiwi, piure de banane, suc de portocale roșii și gheaţă",
+                    "price": "35",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p82",
+                    "name": "Lemon Mint Refreshing",
+                    "subheader": "300 ml",
+                    "description": "Mentă, sirop de zahăr, sirop de mentă, suc de lămâie și gheață",
+                    "price": "30",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p83",
+                    "name": "Classic Milkshake",
+                    "subheader": "300 ml",
+                    "description": "Lapte, frișcă, înghețată, aromă de fructe la alegere și gheață",
+                    "price": "26",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p84",
+                    "name": "Strumfi",
+                    "subheader": "400 ml",
+                    "description": "Iaurt, piure de Blue Curacao, piure de banane, suc de ananas, suc de portocale și gheață",
+                    "price": "35",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p85",
+                    "name": "Forest Fruits Smoothie",
+                    "subheader": "400 ml",
+                    "description": "",
+                    "price": "26",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p86",
+                    "name": "Melon Smoothie",
+                    "subheader": "400 ml",
+                    "description": "Piure de pepene galben, banană, suc de ananas, iaurt și gheață",
+                    "price": "35",
+                    "image": "",
+                    "visible": false
+                }
+            ]
+        },
+        {
+            "id": "c12",
+            "name": "Teas",
+            "visible": true,
+            "items": [
+                {
+                    "id": "p93",
+                    "name": "Tea Latte",
+                    "subheader": "250 ml",
+                    "description": "Ceai negru infuzat, miere, sirop de vanilie și lapte",
+                    "price": "23",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p94",
+                    "name": "English Breakfast St. Andrew",
+                    "subheader": "250 ml",
+                    "description": "Cel mai cunoscut ceai negru de casă. Conține ceai Ceylon pentru aromă, ceai Assam pentru tărie și ceai Kenya pentru culoare. Timp de infuzare: 3-5 minute. Culoarea ceaiului: auriu închis.",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p95",
+                    "name": "Imperial Earl Grey",
+                    "subheader": "250 ml",
+                    "description": "Intensitatea uleiului de bergamotă este combinată cu un amestec fin de Ceylon și ceaiuri chinezești. Timp de infuzare: 3-5 minute. Culoarea ceaiului: brun închis.",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p96",
+                    "name": "Jasmine Ting Yuan",
+                    "subheader": "250 ml",
+                    "description": "Cel mai popular ceai chinezesc parfumat cu flori de iasomie. Mirosul de iasomie a fost declarat cel mai frumos miros din lume. Timp de infuzare: 1-2 minute. Culoarea ceaiului: verde-gălbui.",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p97",
+                    "name": "Casablanca Mint",
+                    "subheader": "250 ml",
+                    "description": "Conține ceai verde Gunpowder amestecat cu infuzie de mentă. Conferă o puternică senzație de revigorare. Timp de infuzare: 1-2 minute. Culoarea ceaiului: chihilmbar.",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p98",
+                    "name": "Sencha Senpei",
+                    "subheader": "250 ml",
+                    "description": "Cel mai cunoscut ceai verde japonez, cu gust bogat și amărui. Timp de infuzare: 5-6 minute. Culoarea ceaiului: verde-gălbui.",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p99",
+                    "name": "Ginseng Flight of Dragon",
+                    "subheader": "250 ml",
+                    "description": "Ceai verde, mango, căpşuni, pelate de floarea soarelui, ginseng. Timp de infuzare: 5-6 minute. Culoarea ceaiului: verzui.",
+                    "price": "20",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p100",
+                    "name": "Red Fruit Flash",
+                    "subheader": "250 ml",
+                    "description": "Un amestec delicios de fructe roșii (hibiscus, măceșe, mure, afine). Fără cofeină și tainuri. O alternativă delicioasă la cafea. Timp de infuzare: 5-6 minute. Culoarea ceaiului: roșu închis.",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p101",
+                    "name": "Sicilian Orange",
+                    "subheader": "250 ml",
+                    "description": "Mixul de portocale siciliene dulci și fructul pasiunii răcoritor formează o infuzie vie și răcoroasă, ce poate fi consumat în orice anotimp. Timp de infuzare: 5-6 minute. Culoarea ceaiului: roșu închis.",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p102",
+                    "name": "Wild Cherry",
+                    "subheader": "250 ml",
+                    "description": "Gustul plăcut de cireșe cu o nuanță amăruie de migdale face din această băutură una ideală pentru orice oră a zilei. Timp de infuzare: 5-6 minute. Culoarea ceaiului: roșu închis.",
+                    "price": "20",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p103",
+                    "name": "Sweet November",
+                    "subheader": "250 ml",
+                    "description": "O băutură revitalizantă și parfumată, obținută dintr-un amestec de fructe, scorțișoară și migdale. Timp de infuzare: 5-6 minute. Culoarea ceaiului: roșu închis.",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p104",
+                    "name": "Ginger Tea",
+                    "subheader": "250 ml",
+                    "description": "Ghimbir, miere, suc de lămâie, felie de lămâie",
+                    "price": "21",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p105",
+                    "name": "Miere",
+                    "subheader": "20 gr.",
+                    "description": "",
+                    "price": "2",
+                    "image": "",
+                    "visible": false
+                }
+            ]
+        },
+        {
+            "id": "c11",
+            "name": "Non Alcoholic Cocktails",
+            "visible": false,
+            "items": [
+                {
+                    "id": "p87",
+                    "name": "Virgin Colada",
+                    "subheader": "250 ml",
+                    "description": "Sirop de cocos, suc de ananas, frișcă lichidă și gheață",
+                    "price": "27",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p88",
+                    "name": "Green Apple",
+                    "subheader": "250 ml",
+                    "description": "Lime, zahăr brun, suc de mere verzi și gheață pisată",
+                    "price": "27",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p89",
+                    "name": "Virgin Mojito",
+                    "subheader": "250 ml",
+                    "description": "Mentă proaspătă, lime, zahăr brun, Sprite și gheață pisată",
+                    "price": "27",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p90",
+                    "name": "Apple Mojito",
+                    "subheader": "250 ml",
+                    "description": "Lime, mentă proaspătă, zahăr brun, suc de mere și gheață pisată",
+                    "price": "27",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p91",
+                    "name": "Orange Mojito",
+                    "subheader": "250 ml",
+                    "description": "Lime, mentă proaspătă, zahăr brun, suc de portocale și gheață pisată",
+                    "price": "27",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p92",
+                    "name": "Go-Go",
+                    "subheader": "250 ml",
+                    "description": "Căpşuni, aromă de căpşuni, suc de portocale și gheață pisată",
+                    "price": "27",
+                    "image": "",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "id": "c13",
+            "name": "Alcoholic Cocktails",
+            "visible": false,
+            "items": [
+                {
+                    "id": "p106",
+                    "name": "Mojito",
+                    "subheader": "200 ml",
+                    "description": "Mentă, rom alb, lime, zahăr brun și apă minerală",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p107",
+                    "name": "Fruits Mojito",
+                    "subheader": "200 ml",
+                    "description": "Rom alb, mentă, lime, apă minerală și aromă de fructe la alegere",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p108",
+                    "name": "Caipiroska",
+                    "subheader": "200 ml",
+                    "description": "Lime, vodcă și sirop de zahăr brun",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p109",
+                    "name": "Berry Caipiroska",
+                    "subheader": "200 ml",
+                    "description": "Vodcă de zmeură, fructe, suc de lime și trestie de zahăr",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p110",
+                    "name": "Caipirinha",
+                    "subheader": "200 ml",
+                    "description": "Lime, Cachaca și sirop de zahăr",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p111",
+                    "name": "Campari Orange",
+                    "subheader": "200 ml",
+                    "description": "Campari, suc de portocale și gheață",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p112",
+                    "name": "Campari Tonic",
+                    "subheader": "200 ml",
+                    "description": "Campari, apă tonică și gheață",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p113",
+                    "name": "Gin Tonic",
+                    "subheader": "200 ml",
+                    "description": "Gin, apă tonică și gheață",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p114",
+                    "name": "Jager Tonic",
+                    "subheader": "200 ml",
+                    "description": "Jagermeister, apă tonică și gheață",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p115",
+                    "name": "Cuba Libre",
+                    "subheader": "200 ml",
+                    "description": "Rom, cola și lime",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p116",
+                    "name": "Tequila Sunrise",
+                    "subheader": "200 ml",
+                    "description": "Tequila, suc de portocale, grenadine și gheață",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "id": "c14",
+            "name": "Tribute to Classics",
+            "visible": false,
+            "items": [
+                {
+                    "id": "p117",
+                    "name": "Cosmopolitan",
+                    "subheader": "150 ml",
+                    "description": "Absolut citron, triplu sec, suc de lime și suc de merișoare",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p118",
+                    "name": "Sex on the Beach",
+                    "subheader": "150 ml",
+                    "description": "Vodcă, schnapps de piersici, suc de portocale, suc de merișoare și gheață",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p119",
+                    "name": "Margarita",
+                    "subheader": "150 ml",
+                    "description": "Tequila, triplu sec, suc de lime, sare și lime",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p120",
+                    "name": "Long Island Ice Tea",
+                    "subheader": "240 ml",
+                    "description": "Vodcă, tequila, rom, gin, triplu seca, cola, sweet & sour și gheață",
+                    "price": "32",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p121",
+                    "name": "Pina Colada",
+                    "subheader": "150 ml",
+                    "description": "Rom Malibu, suc de ananas, sirop de cocos, frișcă și gheață",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p122",
+                    "name": "Mai Tai",
+                    "subheader": "240 ml",
+                    "description": "Rom auriu, rom negru, triplu sec, sirop de migdale, suc de lime, suc de ananas și gheață pisată",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p123",
+                    "name": "Godfather",
+                    "subheader": "120 ml",
+                    "description": "Bourbon, amaretto și gheață",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p124",
+                    "name": "Manhattan",
+                    "subheader": "100 ml",
+                    "description": "Bourbon, Martini roşu şi Angostura bitter",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p125",
+                    "name": "Martini Cocktail",
+                    "subheader": "100 ml",
+                    "description": "Martini dry, gin și gheață",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p126",
+                    "name": "Negroni",
+                    "subheader": "90 ml",
+                    "description": "Campari, Martini roşu, gin și gheață",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p127",
+                    "name": "Aperol Spritz",
+                    "subheader": "250 ml",
+                    "description": "Aperol, prosecco, apă minerală și portocală",
+                    "price": "31",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p128",
+                    "name": "Saint Tropez",
+                    "subheader": "150 ml",
+                    "description": "Absolut Citron, Lichior de flori de soc St-Germain, suc de lămâie, apă tonică",
+                    "price": "31",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p129",
+                    "name": "C House Royal",
+                    "subheader": "200 ml",
+                    "description": "Martini roşu, prosecco, piure de fructe de pădure și gheață",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p130",
+                    "name": "Hugo",
+                    "subheader": "200 ml",
+                    "description": "Prosecco, lime, mentă, sirop de soc",
+                    "price": "29",
+                    "image": "",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "id": "c15",
+            "name": "Spirits",
+            "visible": false,
+            "items": [
+                {
+                    "id": "p131",
+                    "name": "Irish Whiskey",
+                    "subheader": "40 ml",
+                    "description": "Jameson",
+                    "price": "20",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p132",
+                    "name": "Bourbon Whiskey",
+                    "subheader": "40 ml",
+                    "description": "Wild Turkey",
+                    "price": "21",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p133",
+                    "name": "Tennesse Whiskey",
+                    "subheader": "40 ml",
+                    "description": "Jack Daniel's No. 7",
+                    "price": "20",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p134",
+                    "name": "Scotch Whiskey",
+                    "subheader": "40 ml",
+                    "description": "J&B Rare",
+                    "price": "20",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p135",
+                    "name": "Scotch Whiskey",
+                    "subheader": "40 ml",
+                    "description": "Johnnie Walker Red / Black Label 12 Y.O.",
+                    "price": "22",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p136",
+                    "name": "Single Malt",
+                    "subheader": "40 ml",
+                    "description": "Glenffidich 12 Y.O.",
+                    "price": "27",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p137",
+                    "name": "Cognac",
+                    "subheader": "40 ml",
+                    "description": "Hennessy V.S",
+                    "price": "28",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p138",
+                    "name": "Vodka",
+                    "subheader": "40 ml",
+                    "description": "Absolut",
+                    "price": "18",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p139",
+                    "name": "Premium Vodka",
+                    "subheader": "40 ml",
+                    "description": "Grey Goose",
+                    "price": "28",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p140",
+                    "name": "Gin",
+                    "subheader": "40 ml",
+                    "description": "Tanqueray Dry",
+                    "price": "18",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p141",
+                    "name": "Gin",
+                    "subheader": "40 ml",
+                    "description": "Bombay",
+                    "price": "20",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p142",
+                    "name": "Rum",
+                    "subheader": "40 ml",
+                    "description": "Bacardi White / Black",
+                    "price": "18",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p143",
+                    "name": "Rum",
+                    "subheader": "40 ml",
+                    "description": "Zacapa 23 Y.O.",
+                    "price": "37",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p144",
+                    "name": "Tequila",
+                    "subheader": "40 ml",
+                    "description": "El Camino",
+                    "price": "18",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p145",
+                    "name": "Bitter",
+                    "subheader": "40 ml",
+                    "description": "Aperol",
+                    "price": "20",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p146",
+                    "name": "Bitter",
+                    "subheader": "40 ml",
+                    "description": "Campari",
+                    "price": "20",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p147",
+                    "name": "Bitter",
+                    "subheader": "40 ml",
+                    "description": "Amaro Ramazzotti",
+                    "price": "20",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p148",
+                    "name": "Bitter",
+                    "subheader": "40 ml",
+                    "description": "Jagermeister",
+                    "price": "20",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p149",
+                    "name": "Liqueur",
+                    "subheader": "40 ml",
+                    "description": "Limoncello",
+                    "price": "18",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p150",
+                    "name": "Liqueur",
+                    "subheader": "40 ml",
+                    "description": "Amaretto Disaronno",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p151",
+                    "name": "Liqueur",
+                    "subheader": "40 ml",
+                    "description": "Cointreau",
+                    "price": "28",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p152",
+                    "name": "Liqueur",
+                    "subheader": "40 ml",
+                    "description": "Sambuca Ramazzotti",
+                    "price": "18",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p153",
+                    "name": "Liqueur",
+                    "subheader": "40 ml",
+                    "description": "Bailey's",
+                    "price": "20",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p154",
+                    "name": "Liqueur",
+                    "subheader": "40 ml",
+                    "description": "Chamboard",
+                    "price": "22",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p155",
+                    "name": "Liqueur",
+                    "subheader": "40 ml",
+                    "description": "Malibu",
+                    "price": "18",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p156",
+                    "name": "Vermouth",
+                    "subheader": "40 ml",
+                    "description": "Martini Rosso / Bianco",
+                    "price": "18",
+                    "image": "",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "id": "c16",
+            "name": "Beers",
+            "visible": true,
+            "items": [
+                {
+                    "id": "p157",
+                    "name": "Peroni",
+                    "subheader": "330 ml",
+                    "description": "",
+                    "price": "15",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p158",
+                    "name": "Ursus",
+                    "subheader": "330 ml",
+                    "description": "Ursus / Ursus fără alcool",
+                    "price": "15",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p159",
+                    "name": "Corona",
+                    "subheader": "330 ml",
+                    "description": "",
+                    "price": "19",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p160",
+                    "name": "Heineken",
+                    "subheader": "330 ml",
+                    "description": "Heineken / Heineken fără alcool",
+                    "price": "16",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p161",
+                    "name": "Birra Moretti",
+                    "subheader": "330 ml",
+                    "description": "",
+                    "price": "14",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p162",
+                    "name": "Silva Neagră",
+                    "subheader": "330 ml",
+                    "description": "",
+                    "price": "15",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p163",
+                    "name": "Desperados",
+                    "subheader": "400 ml",
+                    "description": "",
+                    "price": "17",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p164",
+                    "name": "Strongbow",
+                    "subheader": "330 ml",
+                    "description": "",
+                    "price": "15",
+                    "image": "",
+                    "visible": false
+                },
+                {
+                    "id": "p165",
+                    "name": "Edelweiss",
+                    "subheader": "500 ml",
+                    "description": "",
+                    "price": "24",
+                    "image": "",
+                    "visible": false
+                }
+            ]
+        },
+        {
+            "id": "c17",
+            "name": "Ice Cream",
+            "visible": false,
+            "items": [
+                {
+                    "id": "p166",
+                    "name": "Coppa Fragola e Panna",
+                    "subheader": "~200 g",
+                    "description": "2 cupe căpșună, 1 cupă vanilie, frișcă, căpșună, topping Read More",
+                    "price": "36",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p167",
+                    "name": "Coppa Crocante",
+                    "subheader": "~200 g",
+                    "description": "1 cupă alune, 1 cupă fistic, 1 cupă caramel, frișcă, alune caramelizate, topping Read More",
+                    "price": "36",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p168",
+                    "name": "Coppa Ciocolate e Nocciola",
+                    "subheader": "~200 g",
+                    "description": "1 cupă alune, 2 cupe ciocolată, frișcă, alune mărunțite, topping Read More",
+                    "price": "36",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p169",
+                    "name": "Coppa Biscotti",
+                    "subheader": "~200 g",
+                    "description": "1 cupă ciocolată, 2 cupe biscuiți, frișcă, biscuiţi mărunțiți, topping Read More",
+                    "price": "36",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p170",
+                    "name": "Coppa Amarena",
+                    "subheader": "~200 g",
+                    "description": "2 cupe cireșe, 1 cupă fructe de pădure, frișcă, topping, cireașă Read More",
+                    "price": "36",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p171",
+                    "name": "Coppa Banana Split",
+                    "subheader": "~200 g",
+                    "description": "1 cupă căpşuni, 1 cupă ciocolată, 1 cupă vanilie, frișcă, banană, topping Read More",
+                    "price": "39",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p172",
+                    "name": "Coppa Bambini",
+                    "subheader": "~150 g",
+                    "description": "1 cupă blue unicorn, 1 cupă pink unicorn, frișcă, decor bomboane, topping Read More",
+                    "price": "26",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p173",
+                    "name": "Coppa 3 Gusti",
+                    "subheader": "~200 g",
+                    "description": "3 cupe la alegere, frișcă, topping Read More",
+                    "price": "36",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p174",
+                    "name": "Cupă de înghețată",
+                    "subheader": "~65 g",
+                    "description": "Alune, biscuit, blue unicorn, căpşuni, caramel, cherry, ciocolată, coconut, flamingo, fistic, fructe de pădure, kinder, lotus, malaga, pepene galben, ... Read More",
+                    "price": "10",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p175",
+                    "name": "Marlenka – felie",
+                    "subheader": "70 g",
+                    "description": "Nucă și miere / ciocolată și lapte Read More",
+                    "price": "15",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p176",
+                    "name": "Marlenka – cutie",
+                    "subheader": "70 g",
+                    "description": "Ruladă (afine și zmeură) Read More",
+                    "price": "60",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p177",
+                    "name": "Marlenka – cutie",
+                    "subheader": "235 g",
+                    "description": "Bomboane (nucă și miere / ciocolată și lapte) Read More",
+                    "price": "49",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p178",
+                    "name": "Marlenka – cutie",
+                    "subheader": "300 g",
+                    "description": "Napoleonky (ciocolată și vanilie) Read More",
+                    "price": "60",
+                    "image": "",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "id": "c18",
+            "name": "Fruits Salad",
+            "visible": false,
+            "items": [
+                {
+                    "id": "p179",
+                    "name": "Classic Fruits Salad",
+                    "subheader": "250-300 g",
+                    "description": "Salată de fructe Read More",
+                    "price": "28",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p180",
+                    "name": "Vodka Fruits Salad",
+                    "subheader": "250-300 g",
+                    "description": "Salată de fructe cu vodkă Read More",
+                    "price": "38",
+                    "image": "",
+                    "visible": true
+                }
+            ]
+        },
+        {
+            "id": "c19",
+            "name": "Wine & Sparkling Wine",
+            "visible": false,
+            "items": [
+                {
+                    "id": "p181",
+                    "name": "Doc Treviso",
+                    "subheader": "200 ml",
+                    "description": "Maschio Prosecco Extra Dry",
+                    "price": "27",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p182",
+                    "name": "Halewood Sunflower",
+                    "subheader": "200 ml",
+                    "description": "Prosecco",
+                    "price": "27",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p183",
+                    "name": "Fetească neagră",
+                    "subheader": "187 ml",
+                    "description": "Vin rosu",
+                    "price": "19",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p184",
+                    "name": "Fetească regală",
+                    "subheader": "187 ml",
+                    "description": "Vin alb",
+                    "price": "19",
+                    "image": "",
+                    "visible": true
+                },
+                {
+                    "id": "p185",
+                    "name": "Merlot Rose",
+                    "subheader": "187 ml",
+                    "description": "Vin rose",
+                    "price": "19",
+                    "image": "",
+                    "visible": true
+                }
+            ]
+        }
+    ]
+}

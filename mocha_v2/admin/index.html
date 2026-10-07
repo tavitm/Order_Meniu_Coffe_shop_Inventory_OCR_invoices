@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Administrare meniu</title>
+<style>
+  :root {
+    --bg: #f4f2ef;
+    --card: #fff;
+    --line: #e3dfd9;
+    --text: #1d1b19;
+    --muted: #77716a;
+    --brand: #3f0023;
+    --brand-ink: #fff;
+    --accent: #8a1c4a;
+    --danger: #b3261e;
+    --ok: #2e7d32;
+    --warn: #b26a00;
+    --soft: #f8f6f3;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  input, textarea, select { width: 100%; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: #fff; }
+  input:focus, textarea:focus, select:focus { outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent); border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 38px; }
+  label.f { display: block; font-size: 12px; color: var(--muted); }
+  label.f > span { display: block; margin-bottom: 3px; }
+  [hidden] { display: none !important; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line); background: #fff; border-radius: 8px; padding: 7px 12px; cursor: pointer; white-space: nowrap; text-decoration: none; }
+  .btn:hover { background: var(--soft); }
+  .btn.primary { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  .btn.primary:hover { background: color-mix(in srgb, var(--brand) 85%, #000); }
+  .btn.primary:disabled { opacity: .45; cursor: default; }
+  .btn.danger { color: var(--danger); }
+  .btn.ghost { border-color: transparent; background: transparent; }
+  .icon { width: 32px; height: 32px; padding: 0; }
+  .icon:disabled { opacity: .3; cursor: default; }
+
+  /* Login */
+  .login { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+  .login form { width: min(360px, 100%); background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 28px; display: grid; gap: 14px; }
+  .login h1 { margin: 0; font-size: 20px; }
+  .msg { font-size: 13px; padding: 8px 10px; border-radius: 8px; background: #fdecea; color: var(--danger); }
+  .msg.info { background: #fff4e5; color: var(--warn); }
+
+  /* App */
+  header.top { position: sticky; top: 0; z-index: 10; background: var(--brand); color: var(--brand-ink); }
+  .top-in { max-width: 980px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .top-in h1 { font-size: 16px; margin: 0; margin-right: auto; }
+  .top .btn:not(.primary) { background: transparent; color: #fff; border-color: rgba(255,255,255,.35); }
+  .top .btn:not(.primary):hover { background: rgba(255,255,255,.1); }
+  .top .btn.primary { background: #fff; color: var(--brand); border-color: #fff; font-weight: 600; }
+  .savebar { display: flex; align-items: center; gap: 10px; }
+  .status { font-size: 12px; opacity: .85; }
+  .status.dirty { color: #ffd27a; opacity: 1; }
+  .tabs { max-width: 980px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; }
+  .tabs button { border: 0; background: none; color: rgba(255,255,255,.75); padding: 8px 12px; border-bottom: 2px solid transparent; cursor: pointer; }
+  .tabs button[aria-selected="true"] { color: #fff; border-color: #fff; }
+
+  main { max-width: 980px; margin: 0 auto; padding: 16px 16px 80px; }
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .toolbar input { flex: 1 1 220px; width: auto; }
+
+  .cat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; }
+  .cat.off { background: repeating-linear-gradient(-45deg, #fff, #fff 8px, var(--soft) 8px, var(--soft) 16px); }
+  .cat-head { display: flex; align-items: center; gap: 6px; padding: 8px 10px; }
+  .cat-head .name { font-weight: 600; font-size: 15px; flex: 1; min-width: 120px; }
+  .count { font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .chev { transition: rotate .15s; }
+  .cat.open .chev { rotate: 90deg; }
+  .cat-body { border-top: 1px solid var(--line); padding: 8px 10px 12px; }
+
+  .item { display: grid; grid-template-columns: 64px 1fr auto; gap: 10px; padding: 10px 4px; border-bottom: 1px dashed var(--line); }
+  .item:last-of-type { border-bottom: 0; }
+  .item.off { opacity: .55; }
+  .item.off:focus-within { opacity: 1; }
+  .fields { display: grid; grid-template-columns: 2fr 1fr 90px; gap: 8px; }
+  .fields .desc { grid-column: 1 / -1; }
+  .side { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+  .side .row { display: flex; gap: 2px; }
+  .side select { width: 150px; padding: 4px 6px; font-size: 12px; }
+
+  .img { position: relative; width: 64px; height: 64px; border: 1px dashed var(--line); border-radius: 8px; background: var(--soft) center / contain no-repeat; cursor: pointer; display: grid; place-items: center; color: var(--muted); font-size: 11px; text-align: center; }
+  .img.has { border-style: solid; }
+  .img .x { position: absolute; top: -8px; right: -8px; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); background: #fff; color: var(--danger); cursor: pointer; font-size: 13px; line-height: 1; padding: 0; }
+  .img.busy::after { content: "…"; position: absolute; inset: 0; display: grid; place-items: center; background: rgba(255,255,255,.7); border-radius: 8px; font-size: 20px; }
+
+  .switch { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12px; color: var(--muted); user-select: none; white-space: nowrap; }
+  .switch input { appearance: none; width: 32px; height: 18px; border-radius: 9px; background: #cfc9c2; position: relative; padding: 0; border: 0; cursor: pointer; flex: none; transition: background .15s; }
+  .switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: left .15s; }
+  .switch input:checked { background: var(--ok); }
+  .switch input:checked::after { left: 16px; }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; display: grid; gap: 12px; }
+  .panel h2 { margin: 0; font-size: 15px; }
+  .banner-prev { width: 100%; max-width: 420px; aspect-ratio: 1; border: 1px dashed var(--line); border-radius: 10px; background: var(--soft) center / contain no-repeat; display: grid; place-items: center; color: var(--muted); cursor: pointer; position: relative; }
+  .banner-prev:hover { border-color: var(--accent); }
+  .banner-prev.busy::after { content: "Se încarcă…"; position: absolute; inset: 0; display: grid; place-items: center; background: rgba(255,255,255,.75); border-radius: 10px; color: var(--text); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .hint { font-size: 12px; color: var(--muted); margin: 0; }
+  .empty { padding: 10px 4px; color: var(--muted); font-size: 13px; }
+
+  .bk { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+  .bk:first-child { border-top: 0; }
+  .bk b { font-weight: 600; }
+  .bk .meta { font-size: 12px; color: var(--muted); }
+  .bk .acts { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 9px; background: var(--soft); border: 1px solid var(--line); color: var(--muted); margin-left: 6px; vertical-align: 1px; }
+  .tag.manual { background: #e8f3e9; border-color: #cfe5d1; color: var(--ok); }
+  .tag.restore { background: #fff4e5; border-color: #f5dfbd; color: var(--warn); }
+  .toast { position: fixed; left: 50%; bottom: 20px; translate: -50% 0; background: #222; color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13px; z-index: 50; max-width: calc(100vw - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+  .toast.err { background: var(--danger); }
+
+  @media (max-width: 680px) {
+    .item { grid-template-columns: 56px 1fr; }
+    .img { width: 56px; height: 56px; }
+    .fields { grid-template-columns: 1fr 90px; }
+    .fields .name-f { grid-column: 1 / -1; }
+    .side { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+    .side select { width: auto; flex: 1; }
+    .cat-head { flex-wrap: wrap; }
+    .grid2 { grid-template-columns: 1fr; }
+    .bk { grid-template-columns: 1fr; }
+    .bk .acts { justify-content: flex-start; }
+    header.top { position: static; }
+    .top-in h1 { flex: 1 1 100%; }
+    .savebar { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; justify-content: space-between; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: var(--brand); box-shadow: 0 -4px 16px rgba(0,0,0,.15); }
+    .savebar .btn.primary { min-width: 140px; }
+    .toast { bottom: 76px; }
+  }
+</style>
+</head>
+<body>
+
+<section class="login" id="login" hidden>
+  <form id="loginForm">
+    <h1>Administrare meniu</h1>
+    <div class="msg info" id="notConfigured" hidden>Parola nu este setată. Editează <b>admin/config.php</b> pe server (minimum 10 caractere).</div>
+    <label class="f"><span>Parolă</span><input type="password" id="password" autocomplete="current-password" required></label>
+    <div class="msg" id="loginErr" hidden></div>
+    <button class="btn primary" type="submit">Intră</button>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header class="top">
+    <div class="top-in">
+      <h1>Administrare meniu</h1>
+      <a class="btn" href="../" target="_blank" rel="noopener">Vezi meniul ↗</a>
+      <div class="savebar"><span class="status" id="status">Salvat</span><button class="btn primary" id="saveBtn" disabled>Salvează</button></div>
+      <button class="btn" id="logoutBtn">Ieșire</button>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="products">Produse</button>
+      <button role="tab" aria-selected="false" data-tab="offer">Imagine ofertă</button>
+      <button role="tab" aria-selected="false" data-tab="settings">Setări</button>
+      <button role="tab" aria-selected="false" data-tab="backup">Backup</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="tab-products">
+      <div class="toolbar">
+        <input type="search" id="search" placeholder="Caută produs sau categorie…">
+        <button class="btn" id="expandAll">Deschide tot</button>
+        <button class="btn" id="collapseAll">Închide tot</button>
+        <button class="btn primary" id="addCat">+ Categorie nouă</button>
+      </div>
+      <div id="cats"></div>
+    </section>
+
+    <section id="tab-offer" hidden>
+      <div class="panel">
+        <h2>Imaginea ofertei</h2>
+        <p class="hint">Imaginea promoțională afișată deasupra categoriilor. Acceptă JPG, PNG, WEBP sau GIF (max. 5 MB); recomandat pătrat, minimum 760×760 px. Click pe imagine sau pe buton ca s-o înlocuiești, apoi apasă <b>Salvează</b>.</p>
+        <label class="switch"><input type="checkbox" id="bannerVisible"> Afișează oferta în meniu</label>
+        <div class="banner-prev" id="bannerPrev" role="button" tabindex="0" title="Înlocuiește imaginea"></div>
+        <div class="toolbar">
+          <button class="btn primary" id="bannerUpload">Înlocuiește imaginea</button>
+          <button class="btn danger" id="bannerRemove">Elimină imaginea</button>
+        </div>
+        <label class="f"><span>Descrierea ofertei (text alternativ pentru cititoare de ecran)</span><input id="bannerAlt" maxlength="200" placeholder="ex. Espresso + apă Dorna 500 ml, 19 lei"></label>
+      </div>
+    </section>
+
+    <section id="tab-settings" hidden>
+      <div class="panel">
+        <h2>General</h2>
+        <div class="grid2">
+          <label class="f"><span>Titlul paginii (tab browser)</span><input id="title" maxlength="120"></label>
+          <label class="f"><span>Monedă afișată</span><input id="currency" maxlength="10"></label>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Program (subsol)</h2>
+        <div class="grid2">
+          <label class="f"><span>Zile</span><input id="days" maxlength="120"></label>
+          <label class="f"><span>Ore</span><input id="hours" maxlength="120"></label>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-backup" hidden>
+      <div class="panel">
+        <h2>Backup și restaurare</h2>
+        <p class="hint">Backup-ul conține doar datele meniului: categoriile (și dacă sunt afișate sau ascunse), produsele cu prețuri, descrieri și imagini, imaginea ofertei și setările. Codul site-ului nu este atins. Înainte de orice restaurare, starea curentă este salvată automat ca backup „Înainte de restaurare”.</p>
+        <p class="hint" id="currentSummary"></p>
+        <div class="toolbar">
+          <input id="backupLabel" maxlength="60" placeholder="Nume backup (opțional), ex. prețuri toamnă">
+          <button class="btn primary" id="backupCreate">Creează backup acum</button>
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="backupDownload">Descarcă backup pe calculator</button>
+          <button class="btn" id="backupImport">Restaurează din fișier…</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Backup-uri pe server</h2>
+        <p class="hint">Se creează automat unul la fiecare „Salvează” (se păstrează ultimele 30). Backup-urile manuale se păstrează până le ștergi.</p>
+        <div id="backupList"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<input type="file" id="jsonPick" accept=".json,application/json" hidden>
+<input type="file" id="filePick" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+
+<script>
+const API = 'api.php';
+const ROOT = '../';
+let csrf = null;
+let menu = null;
+let dirty = false;
+const open = new Set();
+const $ = id => document.getElementById(id);
+
+/* ---------- helpers ---------- */
+function toast(text, err) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (err ? ' err' : '');
+  t.textContent = text;
+  document.body.append(t);
+  setTimeout(() => t.remove(), err ? 5000 : 2200);
+}
+function h(tag, props = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (k in e && typeof v !== 'string') e[k] = v;
+    else if (v !== false && v != null) e.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of kids.flat()) if (c != null) e.append(c);
+  return e;
+}
+const uid = p => p + Math.random().toString(36).slice(2, 9);
+function setDirty(v = true) {
+  dirty = v;
+  $('saveBtn').disabled = !v;
+  $('status').textContent = v ? 'Modificări nesalvate' : 'Salvat';
+  $('status').classList.toggle('dirty', v);
+}
+async function api(action, opts = {}) {
+  const r = await fetch(API + '?action=' + action, {
+    method: opts.body ? 'POST' : 'GET',
+    credentials: 'same-origin',
+    headers: { ...(csrf ? { 'X-CSRF-Token': csrf } : {}), ...(opts.json ? { 'Content-Type': 'application/json' } : {}) },
+    body: opts.body,
+  });
+  let data;
+  try { data = await r.json(); } catch { throw new Error('Răspuns invalid de la server (' + r.status + ').'); }
+  if (r.status === 401 && action !== 'login') { showLogin(); throw new Error(data.error); }
+  if (!data.ok) throw new Error(data.error || 'Eroare necunoscută.');
+  return data;
+}
+function pickImage() {
+  return new Promise(resolve => {
+    const inp = $('filePick');
+    inp.value = '';
+    inp.onchange = () => resolve(inp.files[0] || null);
+    inp.click();
+  });
+}
+async function upload(file) {
+  const fd = new FormData();
+  fd.append('image', file);
+  return (await api('upload', { body: fd })).path;
+}
+
+/* ---------- auth ---------- */
+function showLogin() {
+  $('login').hidden = false;
+  $('app').hidden = true;
+  $('password').focus();
+}
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  $('loginErr').hidden = true;
+  try {
+    const d = await api('login', { body: JSON.stringify({ password: $('password').value }), json: true });
+    csrf = d.csrf;
+    $('password').value = '';
+    $('login').hidden = true;
+    if (!menu) await loadMenu();
+    $('app').hidden = false;
+  } catch (err) {
+    $('loginErr').textContent = err.message;
+    $('loginErr').hidden = false;
+  }
+});
+$('logoutBtn').onclick = async () => {
+  if (dirty && !confirm('Ai modificări nesalvate. Ieși oricum?')) return;
+  await api('logout').catch(() => {});
+  dirty = false; menu = null; csrf = null;
+  $('app').hidden = true;
+  showLogin();
+};
+
+/* ---------- data ---------- */
+async function loadMenu() {
+  const r = await fetch(ROOT + 'data/menu.json?t=' + Date.now(), { cache: 'no-store' });
+  menu = await r.json();
+  menu.settings ??= {};
+  menu.settings.banner ??= {};
+  menu.settings.footer ??= {};
+  menu.categories ??= [];
+  renderAll();
+  setDirty(false);
+}
+$('saveBtn').onclick = async () => {
+  const empty = menu.categories.flatMap(c => [c.name, ...c.items.map(i => i.name)]).some(n => !String(n).trim());
+  if (empty && !confirm('Există categorii sau produse fără denumire. Salvezi oricum?')) return;
+  $('saveBtn').disabled = true;
+  $('status').textContent = 'Se salvează…';
+  try {
+    const d = await api('save', { body: JSON.stringify(menu), json: true });
+    menu = d.menu;
+    renderAll();
+    setDirty(false);
+    toast('Meniul a fost salvat și este live.');
+  } catch (err) {
+    setDirty(true);
+    toast(err.message, true);
+  }
+};
+window.addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); if (dirty) $('saveBtn').click(); }
+});
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+  $('tab-products').hidden = b.dataset.tab !== 'products';
+  $('tab-offer').hidden = b.dataset.tab !== 'offer';
+  $('tab-settings').hidden = b.dataset.tab !== 'settings';
+  $('tab-backup').hidden = b.dataset.tab !== 'backup';
+  if (b.dataset.tab === 'backup') loadBackups();
+});
+
+/* ---------- backup tab ---------- */
+const BK_TYPES = { menu: 'Automat la salvare', manual: 'Manual', restore: 'Înainte de restaurare' };
+const fmtDate = d => new Date(d.replace(' ', 'T')).toLocaleString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+const fmtSum = s => s ? `${s.categories} categorii${s.hiddenCategories ? ` (${s.hiddenCategories} ascunse)` : ''}, ${s.products} produse` : 'fișier deteriorat';
+const post = (action, data) => api(action, { body: JSON.stringify(data), json: true });
+
+async function loadBackups() {
+  const box = $('backupList');
+  box.textContent = 'Se încarcă…';
+  try {
+    const d = await api('backups');
+    $('currentSummary').textContent = d.current ? 'Meniul publicat acum: ' + fmtSum(d.current) + '.' : '';
+    box.textContent = '';
+    if (!d.backups.length) { box.append(h('div', { class: 'empty' }, 'Nu există încă backup-uri.')); return; }
+    for (const b of d.backups) {
+      box.append(h('div', { class: 'bk' },
+        h('div', {},
+          h('b', {}, fmtDate(b.date)), h('span', { class: 'tag ' + b.type }, BK_TYPES[b.type]),
+          b.label ? h('div', {}, b.label) : null,
+          h('div', { class: 'meta' }, fmtSum(b.summary))),
+        h('div', { class: 'acts' },
+          h('button', { class: 'btn', onclick: () => restoreBackup(b) }, 'Restaurează'),
+          h('button', { class: 'btn', title: 'Descarcă pe calculator', onclick: () => downloadBackup(b.name) }, '⬇'),
+          h('button', { class: 'btn danger', title: 'Șterge backup-ul', onclick: () => deleteBackup(b) }, '🗑'))));
+    }
+  } catch (err) { box.textContent = ''; toast(err.message, true); }
+}
+
+function confirmRestore(what) {
+  return confirm(`Restaurezi ${what}?\n\nMeniul publicat va fi înlocuit imediat. Starea actuală se salvează automat ca backup „Înainte de restaurare”.`
+    + (dirty ? '\n\nATENȚIE: modificările nesalvate din admin se vor pierde.' : ''));
+}
+function applyRestored(d, msg) {
+  menu = d.menu;
+  menu.settings.banner ??= {}; menu.settings.footer ??= {};
+  renderAll(); setDirty(false);
+  toast(msg); loadBackups();
+}
+async function restoreBackup(b) {
+  if (!confirmRestore(`backup-ul din ${fmtDate(b.date)}`)) return;
+  try { applyRestored(await post('backup_restore', { name: b.name }), 'Meniul a fost restaurat.'); }
+  catch (err) { toast(err.message, true); }
+}
+async function deleteBackup(b) {
+  if (!confirm(`Ștergi definitiv backup-ul din ${fmtDate(b.date)}?`)) return;
+  try { await post('backup_delete', { name: b.name }); loadBackups(); }
+  catch (err) { toast(err.message, true); }
+}
+async function downloadBackup(name = '') {
+  try {
+    const d = await api('backup_download' + (name ? '&name=' + encodeURIComponent(name) : ''));
+    const stamp = new Date().toISOString().slice(0, 16).replace('T', '-').replace(':', '');
+    const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(d.bundle)], { type: 'application/json' })), download: `mocha-meniu-backup-${stamp}.json` });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  } catch (err) { toast(err.message, true); }
+}
+$('backupCreate').onclick = async () => {
+  if (dirty && !confirm('Ai modificări nesalvate. Backup-ul va conține meniul publicat, fără ele. Continui?')) return;
+  try { await post('backup_create', { label: $('backupLabel').value }); $('backupLabel').value = ''; toast('Backup creat.'); loadBackups(); }
+  catch (err) { toast(err.message, true); }
+};
+$('backupDownload').onclick = () => {
+  if (dirty) toast('Atenție: fișierul conține meniul publicat, fără modificările nesalvate.');
+  downloadBackup();
+};
+$('backupImport').onclick = () => { $('jsonPick').value = ''; $('jsonPick').click(); };
+$('jsonPick').onchange = async () => {
+  const f = $('jsonPick').files[0];
+  if (!f) return;
+  let text, data;
+  try { text = await f.text(); data = JSON.parse(text); } catch { toast('Fișierul nu este un backup valid.', true); return; }
+  const m = data.format === 'mocha-menu-backup' ? data.menu : data;
+  if (!m || !Array.isArray(m.categories)) { toast('Fișierul nu conține un meniu valid.', true); return; }
+  const sum = { categories: m.categories.length, hiddenCategories: m.categories.filter(c => c.visible === false).length, products: m.categories.reduce((n, c) => n + (c.items || []).length, 0) };
+  if (!confirmRestore(`fișierul „${f.name}” (${fmtSum(sum)})`)) return;
+  try {
+    const d = await api('backup_import', { body: text, json: true });
+    applyRestored(d, 'Meniul a fost restaurat din fișier.' + (d.imagesRestored ? ` ${d.imagesRestored} imagini recuperate.` : ''));
+    if (d.imagesMissing.length) toast('Lipsesc imagini: ' + d.imagesMissing.join(', '), true);
+  } catch (err) { toast(err.message, true); }
+};
+
+/* ---------- products tab ---------- */
+function move(arr, i, d) {
+  const j = i + d;
+  if (j < 0 || j >= arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  setDirty(); renderCats();
+}
+function bind(obj, key, el, ev = 'input') {
+  el.value = obj[key] ?? '';
+  el.addEventListener(ev, () => { obj[key] = el.value; setDirty(); });
+  return el;
+}
+function sw(obj, key, label, onChange) {
+  const inp = h('input', { type: 'checkbox', checked: obj[key] !== false });
+  inp.addEventListener('change', () => { obj[key] = inp.checked; setDirty(); onChange?.(inp.checked); });
+  return h('label', { class: 'switch', title: label }, inp, label);
+}
+function imageBox(obj, key, onDone) {
+  const box = h('div', { class: 'img', role: 'button', tabindex: 0, title: 'Schimbă imaginea' });
+  const paint = () => {
+    box.textContent = '';
+    box.classList.toggle('has', !!obj[key]);
+    box.style.backgroundImage = obj[key] ? `url("${ROOT}${obj[key]}")` : '';
+    if (obj[key]) box.append(h('button', { class: 'x', type: 'button', title: 'Elimină imaginea', onclick: e => { e.stopPropagation(); obj[key] = ''; setDirty(); paint(); } }, '×'));
+    else box.append('+ imagine');
+  };
+  const choose = async () => {
+    const f = await pickImage();
+    if (!f) return;
+    box.classList.add('busy');
+    try { obj[key] = await upload(f); setDirty(); paint(); onDone?.(); }
+    catch (err) { toast(err.message, true); }
+    finally { box.classList.remove('busy'); }
+  };
+  box.onclick = choose;
+  box.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(); } };
+  paint();
+  return box;
+}
+
+function itemRow(cat, ci, it, ii) {
+  const row = h('div', { class: 'item' + (it.visible === false ? ' off' : '') });
+  const price = bind(it, 'price', h('input', { inputmode: 'decimal', placeholder: '0' }));
+  price.addEventListener('input', () => { price.value = price.value.replace(/[^\d.,]/g, ''); it.price = price.value.replace(',', '.'); });
+  const moveSel = h('select', { title: 'Mută în altă categorie' },
+    h('option', { value: '' }, 'Mută în…'),
+    menu.categories.map((c, k) => k === ci ? null : h('option', { value: k }, c.name || '(fără nume)')));
+  moveSel.onchange = () => {
+    const k = +moveSel.value;
+    if (moveSel.value === '') return;
+    cat.items.splice(ii, 1);
+    menu.categories[k].items.push(it);
+    open.add(menu.categories[k].id);
+    setDirty(); renderCats();
+    toast(`„${it.name}” a fost mutat în ${menu.categories[k].name}.`);
+  };
+  row.append(
+    imageBox(it, 'image'),
+    h('div', { class: 'fields' },
+      h('label', { class: 'f name-f' }, h('span', {}, 'Denumire'), bind(it, 'name', h('input', { maxlength: 160 }))),
+      h('label', { class: 'f' }, h('span', {}, 'Cantitate'), bind(it, 'subheader', h('input', { maxlength: 120, placeholder: 'ex. 250 ml' }))),
+      h('label', { class: 'f' }, h('span', {}, 'Preț (' + (menu.settings.currency || 'lei') + ')'), price),
+      h('label', { class: 'f desc' }, h('span', {}, 'Descriere'), bind(it, 'description', h('textarea', { rows: 1, maxlength: 1000 })))),
+    h('div', { class: 'side' },
+      sw(it, 'visible', 'Afișat', v => row.classList.toggle('off', !v)),
+      h('div', { class: 'row' },
+        h('button', { class: 'btn icon ghost', title: 'Mută sus', disabled: ii === 0, onclick: () => move(cat.items, ii, -1) }, '↑'),
+        h('button', { class: 'btn icon ghost', title: 'Mută jos', disabled: ii === cat.items.length - 1, onclick: () => move(cat.items, ii, 1) }, '↓'),
+        h('button', { class: 'btn icon ghost danger', title: 'Șterge produsul', onclick: () => {
+          if (!confirm(`Ștergi produsul „${it.name || 'fără nume'}”?`)) return;
+          cat.items.splice(ii, 1); setDirty(); renderCats();
+        } }, '🗑')),
+      moveSel));
+  return row;
+}
+
+function catCard(cat, ci, q) {
+  const isOpen = open.has(cat.id) || !!q;
+  const card = h('section', { class: 'cat' + (isOpen ? ' open' : '') + (cat.visible === false ? ' off' : ''), 'data-id': cat.id });
+  const toggle = () => { open.has(cat.id) ? open.delete(cat.id) : open.add(cat.id); renderCats(); };
+  const visibleCount = cat.items.filter(i => i.visible !== false).length;
+  card.append(h('div', { class: 'cat-head' },
+    h('button', { class: 'btn icon ghost chev', title: isOpen ? 'Închide' : 'Deschide', onclick: toggle }, '›'),
+    bind(cat, 'name', h('input', { class: 'name', maxlength: 120, placeholder: 'Denumire categorie' })),
+    h('span', { class: 'count' }, `${visibleCount}/${cat.items.length} afișate`),
+    sw(cat, 'visible', 'Afișată', v => card.classList.toggle('off', !v)),
+    h('button', { class: 'btn icon ghost', title: 'Mută categoria sus', disabled: ci === 0, onclick: () => move(menu.categories, ci, -1) }, '↑'),
+    h('button', { class: 'btn icon ghost', title: 'Mută categoria jos', disabled: ci === menu.categories.length - 1, onclick: () => move(menu.categories, ci, 1) }, '↓'),
+    h('button', { class: 'btn icon ghost danger', title: 'Șterge categoria', onclick: () => {
+      const n = cat.items.length;
+      if (!confirm(`Ștergi categoria „${cat.name}”${n ? ` și cele ${n} produse din ea` : ''}?`)) return;
+      menu.categories.splice(ci, 1); setDirty(); renderCats();
+    } }, '🗑')));
+  if (isOpen) {
+    const body = h('div', { class: 'cat-body' });
+    const match = i => !q || [i.name, i.subheader, i.description].join(' ').toLowerCase().includes(q) || cat.name.toLowerCase().includes(q);
+    cat.items.forEach((it, ii) => { if (match(it)) body.append(itemRow(cat, ci, it, ii)); });
+    if (!cat.items.length) body.append(h('div', { class: 'empty' }, 'Nu există produse în această categorie.'));
+    body.append(h('button', { class: 'btn', onclick: () => {
+      cat.items.push({ id: uid('p'), name: '', subheader: '', description: '', price: '', image: '', visible: true });
+      open.add(cat.id); $('search').value = ''; setDirty(); renderCats();
+      const rows = document.querySelector(`.cat[data-id="${cat.id}"]`)?.querySelectorAll('.item');
+      rows?.[rows.length - 1]?.querySelector('input')?.focus();
+    } }, '+ Produs nou'));
+    card.append(body);
+  }
+  return card;
+}
+
+function renderCats() {
+  const q = $('search').value.trim().toLowerCase();
+  const box = $('cats');
+  const y = scrollY;
+  box.textContent = '';
+  menu.categories.forEach((c, ci) => {
+    if (q && !c.name.toLowerCase().includes(q) && !c.items.some(i => [i.name, i.subheader, i.description].join(' ').toLowerCase().includes(q))) return;
+    box.append(catCard(c, ci, q));
+  });
+  if (!box.children.length) box.append(h('div', { class: 'empty' }, q ? 'Niciun rezultat.' : 'Nu există categorii. Adaugă una.'));
+  scrollTo(0, y);
+}
+$('search').addEventListener('input', renderCats);
+$('expandAll').onclick = () => { menu.categories.forEach(c => open.add(c.id)); renderCats(); };
+$('collapseAll').onclick = () => { open.clear(); renderCats(); };
+$('addCat').onclick = () => {
+  const c = { id: uid('c'), name: '', visible: true, items: [] };
+  menu.categories.push(c);
+  open.add(c.id); $('search').value = '';
+  setDirty(); renderCats();
+  const inputs = document.querySelectorAll('.cat .name');
+  const last = inputs[inputs.length - 1];
+  last?.scrollIntoView({ block: 'center' }); last?.focus();
+};
+
+/* ---------- settings tab ---------- */
+function renderSettings() {
+  const s = menu.settings;
+  const paint = () => {
+    $('bannerPrev').style.backgroundImage = s.banner.image ? `url("${ROOT}${s.banner.image}")` : '';
+    $('bannerPrev').textContent = s.banner.image ? '' : 'Nicio imagine — click pentru a încărca';
+    $('bannerRemove').disabled = !s.banner.image;
+  };
+  $('bannerVisible').checked = !!s.banner.visible;
+  $('bannerVisible').onchange = () => { s.banner.visible = $('bannerVisible').checked; setDirty(); };
+  const replace = async () => {
+    const f = await pickImage();
+    if (!f) return;
+    $('bannerUpload').disabled = true;
+    $('bannerPrev').classList.add('busy');
+    try {
+      s.banner.image = await upload(f);
+      s.banner.visible = true;
+      $('bannerVisible').checked = true;
+      setDirty(); paint();
+      toast('Imagine încărcată. Apasă „Salvează” ca s-o publici.');
+    }
+    catch (err) { toast(err.message, true); }
+    finally { $('bannerUpload').disabled = false; $('bannerPrev').classList.remove('busy'); }
+  };
+  $('bannerUpload').onclick = replace;
+  $('bannerPrev').onclick = replace;
+  $('bannerPrev').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); replace(); } };
+  $('bannerRemove').onclick = () => { s.banner.image = ''; setDirty(); paint(); };
+  for (const [id, obj, key] of [['bannerAlt', s.banner, 'alt'], ['title', s, 'title'], ['currency', s, 'currency'], ['days', s.footer, 'days'], ['hours', s.footer, 'hours']]) {
+    const el = $(id);
+    el.value = obj[key] ?? '';
+    el.oninput = () => { obj[key] = el.value; setDirty(); };
+  }
+  paint();
+}
+
+function renderAll() { renderCats(); renderSettings(); }
+
+/* ---------- start ---------- */
+(async () => {
+  try {
+    const st = await api('status');
+    $('notConfigured').hidden = st.configured;
+    if (st.loggedIn) { csrf = st.csrf; await loadMenu(); $('app').hidden = false; }
+    else showLogin();
+  } catch (err) {
+    showLogin();
+    $('loginErr').textContent = err.message + ' Serverul trebuie să ruleze PHP 8.1 sau mai nou.';
+    $('loginErr').hidden = false;
+  }
+})();
+</script>
+</body>
+</html>

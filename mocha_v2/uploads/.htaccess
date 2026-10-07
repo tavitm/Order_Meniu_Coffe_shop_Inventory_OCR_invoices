@@ -1,0 +1,5 @@
+# Nu executa niciun script din folderul de imagini
+<FilesMatch "\.(php\d?|phtml|phar|pl|py|cgi|sh)$">
+  Require all denied
+</FilesMatch>
+Options -Indexes
