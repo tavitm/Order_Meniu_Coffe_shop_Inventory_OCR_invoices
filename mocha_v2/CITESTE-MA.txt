@@ -1,8 +1,10 @@
-MENIU C HOUSE CAFE + ADMINISTRARE
-=================================
+MENIU MOCHA + COMENZI + ADMINISTRARE
+====================================
 
-Meniul public: http://tudorheritage.ro/mocha/
-Administrare:  http://tudorheritage.ro/mocha/admin/
+Meniul public:   http://tudorheritage.ro/mocha/
+Comanda mea:     http://tudorheritage.ro/mocha/comanda.html  (se deschide din meniu)
+Ospătar:         http://tudorheritage.ro/mocha/ospatar/
+Administrare:    http://tudorheritage.ro/mocha/admin/  (tab „Încasări” = situația zilei)
 
 INSTALARE (o singură dată)
 1. Deschide admin/config.php și scrie parola între ghilimele:
@@ -15,7 +17,12 @@ INSTALARE (o singură dată)
 3. În cPanel → „Select PHP Version” (sau „MultiPHP Manager”): PHP 8.1 sau mai nou.
 4. Folderele data/ și uploads/ trebuie să poată fi scrise de PHP
    (de obicei permisiuni 755 ajung; dacă salvarea dă eroare, încearcă 775).
-5. Recomandat: activează HTTPS (cPanel → SSL/TLS Status → AutoSSL, gratuit),
+5. Ospătarii (maximum 6) se adaugă din Administrare → tab „Ospătari”, fiecare cu
+   numele și parola lui (minimum 6 caractere). Nu mai există o parolă comună în config.php.
+6. Comenzile se salvează într-o bază SQLite (data/db/orders.sqlite, creată automat).
+   Serverul trebuie să aibă extensia „pdo_sqlite” activă (cPanel → Select PHP Version
+   → Extensions). Folderul data/db/ e protejat; nu-l șterge.
+7. Recomandat: activează HTTPS (cPanel → SSL/TLS Status → AutoSSL, gratuit),
    altfel parola circulă necriptat.
 
 CUM FUNCȚIONEAZĂ
@@ -31,5 +38,34 @@ CUM FUNCȚIONEAZĂ
 - Categoriile sau produsele ascunse nu apar în meniu, dar rămân în admin.
   O categorie fără niciun produs afișat nu apare deloc.
 
-ATENȚIE: când urci din nou fișierele pe server, NU suprascrie data/menu.json
-și folderul uploads/, altfel pierzi modificările făcute din admin.
+COMENZI
+- Clientul apasă pe produse în meniu (se adaugă în „Comanda mea”), alege numărul mesei,
+  ajustează cantitățile și apasă „Trimite comanda”. Poate trimite oricâte comenzi;
+  vede ce a comandat și totalul până la plată. „Vreau să plătesc” (Card / Cash)
+  anunță ospătarul.
+- Ospătarul intră la /ospatar/ alegându-și numele și parola. La autentificare îi începe
+  tura. Vede toate comenzile în timp real, grupate pe mese (actualizare la ~4 secunde,
+  cu semnal sonor). Butoane: Anulare comandă, Plată comandă (Numerar/Card), Plată masă.
+  Fiecare plată/anulare se înregistrează pe numele lui.
+- „Închide tura”: raport de predare (numerar de predat, card, comenzi anulate, produse),
+  salvat și tipăribil; apoi ospătarul e delogat. „Ieșire” delogează fără să închidă tura.
+- Admin → Ospătari: adaugi, redenumești, dezactivezi sau ștergi ospătari, vezi cine e în
+  tură, poți închide tura unui ospătar și vezi rapoartele pe fiecare ospătar (tipărire/CSV).
+- Admin → Setări → „Comenzi online”: pornești/oprești comenzile și setezi numărul de mese.
+- Admin → Încasări: încasări numerar/card, comenzi deschise și anulate, statistică mese,
+  consum pe produse, încasări pe ore, încasări pe ospătari. „Închidere zi” salvează
+  Raportul Z (tipărire / CSV) și pornește o zi nouă; comenzile încă deschise trec în ziua
+  următoare.
+- Închiderea automată a zilei se setează tot în tab-ul „Încasări” (ora HH:MM). Se
+  declanșează la prima activitate după ora setată (orice deschidere de meniu sau pagina
+  ospătarului) și include doar comenzile închise până la ora setată.
+
+SECURITATE ȘI VITEZĂ (.htaccess din folderul principal)
+- Redirecționează automat totul pe HTTPS, blochează listarea folderelor și fișierele
+  ascunse/jurnalele, trimite antete de securitate, comprimă textul și păstrează
+  fonturile/imaginile în cache. Urcă-l obligatoriu (e ascuns pe Mac: Cmd+Shift+.).
+- Opțional, parola de admin din config.php poate fi pusă ca hash în loc de text clar
+  (rezultatul password_hash('parola', PASSWORD_DEFAULT) din PHP).
+
+ATENȚIE: când urci din nou fișierele pe server, NU suprascrie data/menu.json,
+folderul data/db/ și folderul uploads/, altfel pierzi modificările și comenzile.

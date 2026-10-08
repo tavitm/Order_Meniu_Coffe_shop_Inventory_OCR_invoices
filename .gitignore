@@ -13,3 +13,13 @@ mocha_v2/data/backups/*.json
 
 # Jurnale de erori PHP de pe server
 error_log
+.claude/
+
+# Baza de date cu comenzi (doar pe server)
+mocha_v2/data/db/*.sqlite*
+
+# Sesiunile de autentificare (doar pe server)
+mocha_v2/data/sessions/*/
+
+# Arhive de urcare pe server (pot conține config.php cu parola)
+*.zip

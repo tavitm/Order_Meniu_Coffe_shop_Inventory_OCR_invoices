@@ -3,6 +3,7 @@
 // Folosește minimum 10 caractere. Cât timp rămâne goală, autentificarea este blocată.
 const ADMIN_PASSWORD = '';
 
+
 // Dimensiunea maximă a unei imagini încărcate (MB).
 const MAX_UPLOAD_MB = 5;
 

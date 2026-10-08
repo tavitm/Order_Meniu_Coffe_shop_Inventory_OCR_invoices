@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Comanda mea | Mocha</title>
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/fonts.css">
+<style>
+  :root {
+    --bg-top: #8a4f2c;
+    --bg-mid: #a86d43;
+    --bg-bottom: #7b4325;
+    --cream: #fff8ef;
+    --paper: #fbf5ec;
+    --ink: #2b1a10;
+    --muted: #7a6355;
+    --line: #e8dccd;
+    --accent: #2e7a62;
+    --accent-dark: #225c4a;
+    --dark: #261d1a;
+    --danger: #a3322a;
+    --shadow: 0 22px 34px -18px rgba(40, 18, 6, .65);
+    --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+    --sans: Montserrat, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--cream);
+    font: 400 15px/1.5 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    background:
+      radial-gradient(1100px 700px at 50% 0%, rgba(214, 160, 105, .45), transparent 70%),
+      linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 45%, var(--bg-bottom) 100%);
+    background-attachment: fixed;
+  }
+  button, input { font: inherit; color: inherit; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 16px 120px; }
+
+  .top { display: flex; align-items: center; gap: 12px; padding: calc(16px + env(safe-area-inset-top)) 0 8px; }
+  .back { display: inline-flex; align-items: center; gap: 6px; color: var(--cream); text-decoration: none; font-weight: 600; font-size: 14px; padding: 8px 12px 8px 8px; border-radius: 999px; background: rgba(255, 248, 239, .14); }
+  .back svg { width: 18px; height: 18px; }
+  h1 { margin: 18px 0 16px; font: 700 clamp(34px, 9vw, 46px)/1.1 var(--serif); text-shadow: 0 3px 12px rgba(40, 15, 0, .25); }
+  .sub { margin: 0 0 18px; color: rgba(255, 248, 239, .85); }
+  .sub button { border: 0; background: none; padding: 0; color: var(--cream); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font-weight: 600; }
+
+  .panel { background: var(--paper); color: var(--ink); border-radius: 16px; padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .panel h2 { margin: 0 0 6px; font: 700 21px/1.2 var(--serif); }
+  .muted { color: var(--muted); font-size: 13.5px; margin: 0; }
+
+  /* Table step */
+  .table-step { text-align: center; padding: 26px 20px 24px; }
+  .table-step h2 { font-size: 26px; }
+  .table-step input { display: block; width: 140px; margin: 18px auto 6px; padding: 10px; text-align: center; font: 700 40px/1.1 var(--serif); color: var(--ink); background: #fff; border: 2px solid var(--line); border-radius: 14px; }
+  .table-step input:focus { outline: none; border-color: var(--accent); }
+  .err { color: var(--danger); font-size: 13.5px; min-height: 20px; margin: 6px 0 0; }
+
+  .btn { display: flex; width: 100%; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 12px; padding: 14px 18px; cursor: pointer; font-weight: 600; font-size: 15.5px; background: var(--accent); color: #fff; }
+  .btn:hover { background: var(--accent-dark); }
+  .btn:disabled { opacity: .5; cursor: default; }
+  .btn.dark { background: var(--dark); }
+  .btn.light { background: #fff; color: var(--ink); border: 1px solid var(--line); }
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+
+  /* Lines */
+  .line { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+  .line:first-of-type { border-top: 0; }
+  .line .name { font-weight: 600; }
+  .line .name small { font-weight: 400; color: var(--muted); margin-left: 6px; }
+  .line .unit { font-size: 13px; color: var(--muted); }
+  .line .sum { font-weight: 600; text-align: right; white-space: nowrap; }
+  .stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
+  .stepper button { width: 38px; height: 38px; border: 0; background: none; cursor: pointer; font-size: 20px; line-height: 1; color: var(--ink); border-radius: 50%; }
+  .stepper button:hover { background: #f3ebe0; }
+  .stepper output { min-width: 26px; text-align: center; font-weight: 600; }
+  .line .ctl { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; }
+  .sent .line { grid-template-columns: auto 1fr auto; }
+  .sent .q { font-weight: 600; color: var(--muted); min-width: 28px; }
+  .subtotal { display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--line); font-weight: 600; }
+  .empty { padding: 6px 0 2px; color: var(--muted); }
+  .empty a { color: var(--accent-dark); font-weight: 600; }
+
+  .total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; background: var(--dark); color: var(--cream); }
+  .total .lbl { font: 700 20px/1.2 var(--serif); }
+  .total .lbl small { display: block; font: 400 12.5px/1.4 var(--sans); color: rgba(255, 248, 239, .7); }
+  .total .val { font: 700 30px/1 var(--serif); white-space: nowrap; }
+
+  .requested { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; background: #e6f2ec; color: var(--accent-dark); font-weight: 600; margin-top: 12px; }
+  .requested svg { width: 22px; height: 22px; flex: none; }
+
+  .toast { position: fixed; z-index: 40; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); translate: -50% 0; max-width: calc(100vw - 32px); padding: 12px 18px; border-radius: 12px; background: var(--dark); color: var(--cream); font-weight: 500; box-shadow: 0 10px 28px rgba(0,0,0,.4); }
+  .toast.err { background: var(--danger); }
+  .state { text-align: center; padding: 40px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a class="back" href="./#meniu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Meniu</a>
+  </div>
+
+  <h1>Comanda mea</h1>
+  <p class="state" id="loading">Se încarcă…</p>
+  <p class="state" id="disabled" hidden>Comenzile online nu sunt disponibile momentan. Te rugăm să chemi ospătarul.</p>
+
+  <!-- Step 1: table number -->
+  <form class="panel table-step" id="tableStep" hidden novalidate>
+    <h2>Ce număr are masa ta?</h2>
+    <p class="muted">Găsești numărul afișat pe masă.</p>
+    <input id="tableInput" type="number" inputmode="numeric" min="1" step="1" aria-label="Numărul mesei" autocomplete="off">
+    <p class="err" id="tableErr" role="alert"></p>
+    <button class="btn" type="submit">Continuă</button>
+  </form>
+
+  <!-- Step 2: cart, sent items, total, payment -->
+  <div id="orderStep" hidden>
+    <p class="sub"><span id="tableLabel"></span> <button type="button" id="changeTable">Schimbă masa</button></p>
+
+    <section class="panel">
+      <h2>De trimis</h2>
+      <div id="cartLines"></div>
+      <div class="subtotal" id="cartSubtotal"></div>
+      <button class="btn" id="sendBtn" style="margin-top:14px">Trimite comanda</button>
+    </section>
+
+    <section class="panel sent" id="sentPanel" hidden>
+      <h2>Comandat</h2>
+      <div id="sentLines"></div>
+    </section>
+
+    <section class="panel total">
+      <div class="lbl">Total consumație<small id="totalNote"></small></div>
+      <div class="val" id="totalVal">0</div>
+    </section>
+
+    <section class="panel" id="payPanel" hidden>
+      <h2>Plata</h2>
+      <div id="payAsk">
+        <button class="btn dark" id="payBtn">Vreau să plătesc</button>
+        <div class="btn-row" id="payChoice" hidden>
+          <button class="btn light" data-method="card">💳 Card</button>
+          <button class="btn light" data-method="cash">💵 Cash</button>
+        </div>
+      </div>
+      <div class="requested" id="payDone" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        <span id="payDoneText"></span>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="assets/cart.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+let client = Cart.client();
+let catalog = {};       // product id -> { name, subheader, cents }
+let settings = {};
+let maxTables = 20;
+let server = { table: null, items: [], total_cents: 0, pay_request: null };
+let currency = 'lei';
+let busy = false;
+
+function toast(text, err) {
+  document.querySelector('.toast')?.remove();
+  const t = el('div', 'toast' + (err ? ' err' : ''), text);
+  t.setAttribute('role', 'status');
+  document.body.append(t);
+  setTimeout(() => t.remove(), err ? 5000 : 2600);
+}
+
+async function api(action, body = {}) {
+  const r = await fetch('order.php?action=' + action, { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ client, ...body }) });
+  let d;
+  try { d = await r.json(); } catch { throw new Error('Serverul nu răspunde. Încearcă din nou.'); }
+  if (!r.ok || d.ok === false) { const e = new Error(d.error || 'Eroare.'); e.status = r.status; throw e; }
+  return d;
+}
+
+/* ---------- table step ---------- */
+function showTableStep() {
+  $('orderStep').hidden = true;
+  $('tableStep').hidden = false;
+  $('tableInput').max = maxTables;
+  $('tableInput').value = Cart.table() || '';
+  $('tableErr').textContent = '';
+  $('tableInput').focus();
+}
+$('tableStep').addEventListener('submit', e => {
+  e.preventDefault();
+  const n = Number($('tableInput').value);
+  if (!Number.isInteger(n) || n < 1 || n > maxTables) {
+    $('tableErr').textContent = `Introdu un număr între 1 și ${maxTables}.`;
+    return;
+  }
+  Cart.setTable(n);
+  showOrderStep();
+});
+$('changeTable').onclick = showTableStep;
+
+/* ---------- order step ---------- */
+function showOrderStep() {
+  $('tableStep').hidden = true;
+  $('orderStep').hidden = false;
+  render();
+}
+
+function render() {
+  const table = server.table || Cart.table();
+  $('tableLabel').textContent = 'Masa ' + table;
+  // Once something was sent, the table is fixed until payment.
+  $('changeTable').hidden = !!server.items.length;
+
+  // Cart
+  const box = $('cartLines');
+  box.textContent = '';
+  let cartTotal = 0;
+  for (const [id, qty] of Object.entries(Cart.items())) {
+    const p = catalog[id];
+    if (!p) { Cart.setQty(id, 0); continue; }
+    cartTotal += p.cents * qty;
+    const line = el('div', 'line');
+    const name = el('div', 'name', p.name);
+    if (p.subheader) name.append(el('small', null, p.subheader));
+    const stepper = el('div', 'stepper');
+    const minus = el('button', null, '−'); minus.type = 'button'; minus.setAttribute('aria-label', 'Scade cantitatea');
+    const plus = el('button', null, '+'); plus.type = 'button'; plus.setAttribute('aria-label', 'Crește cantitatea');
+    const out = el('output', null, qty);
+    minus.onclick = () => { Cart.setQty(id, qty - 1); render(); };
+    plus.onclick = () => { Cart.setQty(id, qty + 1); render(); };
+    stepper.append(minus, out, plus);
+    const ctl = el('div', 'ctl');
+    ctl.append(stepper, el('div', 'sum', money(p.cents * qty) + ' ' + currency));
+    line.append(name, el('div', 'unit', money(p.cents) + ' ' + currency + ' / buc.'), ctl);
+    box.append(line);
+  }
+  const empty = !box.children.length;
+  if (empty) {
+    const e = el('p', 'empty', 'Nu ai adăugat nimic nou. Apasă pe produsele din ');
+    const a = el('a', null, 'meniu'); a.href = './#meniu';
+    e.append(a, ' ca să le adaugi.');
+    box.append(e);
+  }
+  $('cartSubtotal').hidden = empty;
+  $('cartSubtotal').innerHTML = '';
+  $('cartSubtotal').append(el('span', null, 'Subtotal de trimis'), el('span', null, money(cartTotal) + ' ' + currency));
+  $('sendBtn').hidden = empty;
+  $('sendBtn').textContent = `Trimite comanda · ${money(cartTotal)} ${currency}`;
+  $('sendBtn').disabled = busy;
+
+  // Sent (open orders on the server)
+  const sent = $('sentLines');
+  sent.textContent = '';
+  for (const i of server.items) {
+    const line = el('div', 'line');
+    const name = el('div', 'name', i.name);
+    if (i.subheader) name.append(el('small', null, i.subheader));
+    line.append(el('div', 'q', i.qty + '×'), name, el('div', 'sum', money(i.price_cents * i.qty) + ' ' + currency));
+    sent.append(line);
+  }
+  $('sentPanel').hidden = !server.items.length;
+
+  // Total
+  $('totalVal').textContent = money(server.total_cents + cartTotal) + ' ' + currency;
+  $('totalNote').textContent = cartTotal && server.total_cents
+    ? `Comandat ${money(server.total_cents)} + de trimis ${money(cartTotal)}`
+    : cartTotal ? 'Produsele încă nu au fost trimise' : '';
+
+  // Payment
+  $('payPanel').hidden = !server.items.length;
+  const req = server.pay_request;
+  $('payDone').hidden = !req;
+  $('payBtn').hidden = !!req || !$('payChoice').hidden;
+  $('payDone').title = req ? 'Schimbă modul de plată' : '';
+  if (req) $('payDoneText').textContent = `Ai cerut nota: ${req === 'card' ? 'Card' : 'Cash'}. Ospătarul vine la masă.`;
+}
+
+$('sendBtn').onclick = async () => {
+  const items = Object.entries(Cart.items()).map(([id, qty]) => ({ id, qty }));
+  if (!items.length || busy) return;
+  busy = true; render();
+  try {
+    server = await api('submit', { table: server.table || Cart.table(), items });
+    Cart.clear();
+    toast('Comanda a fost trimisă. Mulțumim!');
+  } catch (e) {
+    if (e.status === 409) await loadMenu();
+    toast(e.message, true);
+  } finally {
+    busy = false; render();
+  }
+};
+
+$('payBtn').onclick = () => { $('payChoice').hidden = false; $('payBtn').hidden = true; };
+$('payDone').onclick = () => { $('payChoice').hidden = false; $('payBtn').hidden = true; };
+document.querySelectorAll('#payChoice button').forEach(b => b.onclick = async () => {
+  try {
+    server = await api('pay', { method: b.dataset.method });
+    $('payChoice').hidden = true;
+    toast('Am anunțat ospătarul.');
+  } catch (e) { toast(e.message, true); }
+  render();
+});
+
+/* ---------- data ---------- */
+async function loadMenu() {
+  const menu = await (await fetch('data/menu.json', { cache: 'no-cache' })).json();
+  settings = menu.settings || {};
+  currency = settings.currency || 'lei';
+  maxTables = Math.max(1, Number((settings.orders || {}).tables) || 20);
+  catalog = {};
+  for (const c of menu.categories || []) {
+    if (c.visible === false) continue;
+    for (const i of c.items || []) {
+      const cents = priceCents(i.price);
+      if (i.visible === false || cents === null) continue;
+      catalog[i.id] = { name: i.name, subheader: i.subheader || '', cents };
+    }
+  }
+}
+
+async function refresh() {
+  try {
+    server = await api('mine');
+    if (server.table) Cart.setTable(server.table);
+    if (!$('orderStep').hidden) render();
+  } catch {}
+}
+
+(async () => {
+  try {
+    await loadMenu();
+    server = await api('mine');
+    if (Cart.expired) {
+      // Older visit (over 4 hours): keep it only if something is still unpaid, otherwise start fresh.
+      if (server.items.length) Cart.keepAlive();
+      else { client = Cart.renewClient(); server = await api('mine'); }
+    }
+  } catch (e) {
+    $('loading').textContent = 'Comanda nu a putut fi încărcată. Verifică conexiunea și reîncearcă.';
+    return;
+  }
+  $('loading').hidden = true;
+  if ((settings.orders || {}).enabled === false && !server.items.length) { $('disabled').hidden = false; return; }
+  if (server.table) Cart.setTable(server.table);
+  const t = Cart.table();
+  if (t && t <= maxTables) showOrderStep(); else showTableStep();
+  setInterval(() => { if (!document.hidden) refresh(); }, 15000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+})();
+</script>
+</body>
+</html>

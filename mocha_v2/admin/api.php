@@ -1,37 +1,13 @@
 <?php
 declare(strict_types=1);
-require __DIR__ . '/config.php';
-date_default_timezone_set('Europe/Bucharest');
+require __DIR__ . '/../lib/common.php';
 
 const ROOT = __DIR__ . '/..';
-const MENU_FILE = ROOT . '/data/menu.json';
 const BACKUP_DIR = ROOT . '/data/backups';
 const UPLOAD_DIR = ROOT . '/uploads';
 
-session_name('mocha_admin');
-session_set_cookie_params([
-    'lifetime' => 0,
-    'path' => dirname($_SERVER['SCRIPT_NAME']) . '/',
-    'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
-    'httponly' => true,
-    'samesite' => 'Strict',
-]);
-session_start();
-
-header('Content-Type: application/json; charset=utf-8');
-header('Cache-Control: no-store');
-
-function out(array $data, int $code = 200): never
-{
-    http_response_code($code);
-    echo json_encode($data, JSON_UNESCAPED_UNICODE);
-    exit;
-}
-
-function fail(string $msg, int $code = 400): never
-{
-    out(['ok' => false, 'error' => $msg], $code);
-}
+start_session('mocha_admin', 90 * 24 * 3600); // 3 luni
+maybe_auto_close();
 
 function logged_in(): bool
 {
@@ -52,11 +28,14 @@ function clean_str(mixed $v, int $max = 500): string
     return mb_substr($v, 0, $max);
 }
 
+// Only image files directly inside uploads/ or assets/ (no dotfiles, no other extensions).
+const IMAGE_PATH = '#^(uploads|assets)/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(webp|png|jpe?g|gif|svg)$#i';
+
 function clean_path(mixed $v): string
 {
     $v = clean_str($v, 300);
     if ($v === '') return '';
-    if (!preg_match('#^(uploads|assets)/[A-Za-z0-9._-]+$#', $v)) fail('Cale de imagine invalidă: ' . $v);
+    if (!preg_match(IMAGE_PATH, $v)) fail('Cale de imagine invalidă: ' . $v);
     return $v;
 }
 
@@ -71,6 +50,7 @@ function clean_menu(array $in): array
     $s = $in['settings'] ?? [];
     $b = $s['banner'] ?? [];
     $f = $s['footer'] ?? [];
+    $o = $s['orders'] ?? [];
     $menu = [
         'settings' => [
             'title' => clean_str($s['title'] ?? '', 120),
@@ -84,6 +64,10 @@ function clean_menu(array $in): array
             'footer' => [
                 'days' => clean_str($f['days'] ?? '', 120),
                 'hours' => clean_str($f['hours'] ?? '', 120),
+            ],
+            'orders' => [
+                'enabled' => (bool)($o['enabled'] ?? true),
+                'tables' => max(1, min(500, (int)($o['tables'] ?? 20))),
             ],
         ],
         'categories' => [],
@@ -196,7 +180,7 @@ function menu_images(array $menu): array
 {
     $paths = [$menu['settings']['banner']['image'] ?? ''];
     foreach ($menu['categories'] ?? [] as $c) foreach ($c['items'] ?? [] as $i) $paths[] = $i['image'] ?? '';
-    return array_values(array_unique(array_filter($paths, fn($p) => is_string($p) && preg_match('#^uploads/[A-Za-z0-9._-]+$#', $p))));
+    return array_values(array_unique(array_filter($paths, fn($p) => is_string($p) && str_starts_with($p, 'uploads/') && preg_match(IMAGE_PATH, $p))));
 }
 
 $action = $_GET['action'] ?? '';
@@ -206,20 +190,7 @@ switch ($action) {
         out(['ok' => true, 'loggedIn' => logged_in(), 'csrf' => logged_in() ? $_SESSION['csrf'] : null, 'configured' => mb_strlen(ADMIN_PASSWORD) >= 10]);
 
     case 'login':
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') fail('Metodă invalidă.', 405);
-        if (mb_strlen(ADMIN_PASSWORD) < 10) fail('Parola nu este setată. Editează admin/config.php (minimum 10 caractere).', 503);
-        $now = time();
-        $_SESSION['fails'] = array_values(array_filter($_SESSION['fails'] ?? [], fn($t) => $t > $now - 900));
-        if (count($_SESSION['fails']) >= 5) fail('Prea multe încercări. Așteaptă 15 minute.', 429);
-        $body = json_decode(file_get_contents('php://input') ?: '', true);
-        $pass = is_array($body) && is_string($body['password'] ?? null) ? $body['password'] : '';
-        if (!hash_equals(ADMIN_PASSWORD, $pass)) {
-            $_SESSION['fails'][] = $now;
-            sleep(1);
-            fail('Parolă greșită.', 401);
-        }
-        session_regenerate_id(true);
-        $_SESSION = ['auth' => true, 'csrf' => bin2hex(random_bytes(32))];
+        password_login(ADMIN_PASSWORD, 'Parola nu este setată. Editează admin/config.php (minimum 10 caractere).');
         out(['ok' => true, 'csrf' => $_SESSION['csrf']]);
 
     case 'logout':
@@ -355,6 +326,136 @@ switch ($action) {
             $restored++;
         }
         out(['ok' => true, 'imagesRestored' => $restored, 'imagesMissing' => $missing] + restore_menu($menu));
+
+    case 'stats':
+        require_auth();
+        $cfg = auto_close_config();
+        $next = null;
+        if ($cfg['enabled']) {
+            $next = date('Y-m-d') . ' ' . $cfg['time'] . ':00';
+            if ($next <= now()) $next = date('Y-m-d', strtotime('+1 day')) . ' ' . $cfg['time'] . ':00';
+        }
+        out(['ok' => true, 'stats' => day_stats(), 'autoClose' => $cfg + ['next' => $next], 'currency' => (string)(load_menu()['settings']['currency'] ?? 'lei')]);
+
+    case 'auto_close_save':
+        require_post();
+        require_auth();
+        $body = json_body();
+        $time = is_string($body['time'] ?? null) ? $body['time'] : '';
+        if (!preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $time)) fail('Ora trebuie să fie în formatul HH:MM.');
+        set_setting('auto_close_enabled', !empty($body['enabled']) ? '1' : '0');
+        set_setting('auto_close_time', $time);
+        // Do not retro-close past days when enabling or changing the time: start counting from the next occurrence.
+        set_setting('auto_close_done', last_scheduled_close($time));
+        out(['ok' => true]);
+
+    case 'close_day':
+        require_post();
+        require_auth();
+        $res = close_day();
+        if (!$res) fail('Nu există comenzi plătite sau anulate de la ultima închidere.');
+        out(['ok' => true] + $res);
+
+    case 'reports':
+        require_auth();
+        $rows = db()->query('SELECT id, opened_at, closed_at, report, auto FROM days ORDER BY id DESC LIMIT 200')->fetchAll();
+        out(['ok' => true, 'reports' => array_map(function ($r) {
+            $rep = json_decode($r['report'], true) ?: [];
+            return ['id' => (int)$r['id'], 'from' => $r['opened_at'], 'to' => $r['closed_at'], 'auto' => (bool)$r['auto'], 'paid' => $rep['paid'] ?? null, 'cancelled' => $rep['cancelled'] ?? null];
+        }, $rows)]);
+
+    case 'report':
+        require_auth();
+        $q = db()->prepare('SELECT id, report FROM days WHERE id = ?');
+        $q->execute([(int)($_GET['id'] ?? 0)]);
+        $r = $q->fetch();
+        if (!$r) fail('Raportul nu există.', 404);
+        out(['ok' => true, 'id' => (int)$r['id'], 'report' => json_decode($r['report'], true), 'currency' => (string)(load_menu()['settings']['currency'] ?? 'lei')]);
+
+    /* ---------- waiters ---------- */
+
+    case 'waiters':
+        require_auth();
+        $db = db();
+        $list = waiter_list(true);
+        foreach ($list as &$w) {
+            $q = $db->prepare('SELECT id, started_at FROM shifts WHERE waiter_id = ? AND ended_at IS NULL ORDER BY id DESC LIMIT 1');
+            $q->execute([$w['id']]);
+            $open = $q->fetch();
+            $w['open_shift'] = $open ? ['id' => (int)$open['id'], 'from' => $open['started_at']] : null;
+        }
+        out(['ok' => true, 'waiters' => $list, 'max' => MAX_WAITERS]);
+
+    case 'waiter_save':
+        require_post();
+        require_auth();
+        $body = json_body();
+        $db = db();
+        $id = (int)($body['id'] ?? 0);
+        $name = clean_str($body['name'] ?? '', 40);
+        $pass = is_string($body['password'] ?? null) ? $body['password'] : '';
+        $active = !array_key_exists('active', $body) || !empty($body['active']);
+        if ($name === '') fail('Scrie numele ospătarului.');
+        $q = $db->prepare('SELECT COUNT(*) FROM waiters WHERE deleted = 0 AND name = ? COLLATE NOCASE AND id <> ?');
+        $q->execute([$name, $id]);
+        if ((int)$q->fetchColumn() > 0) fail('Există deja un ospătar cu acest nume.');
+        if ($pass !== '' && mb_strlen($pass) < 6) fail('Parola trebuie să aibă minimum 6 caractere.');
+        if ($id === 0) {
+            if ((int)$db->query('SELECT COUNT(*) FROM waiters WHERE deleted = 0')->fetchColumn() >= MAX_WAITERS) fail('Poți avea maximum ' . MAX_WAITERS . ' ospătari. Șterge unul înainte să adaugi altul.');
+            if ($pass === '') fail('Setează o parolă pentru ospătarul nou.');
+            $db->prepare('INSERT INTO waiters (name, pass_hash, active, created_at) VALUES (?, ?, ?, ?)')
+                ->execute([$name, password_hash($pass, PASSWORD_DEFAULT), $active ? 1 : 0, now()]);
+        } else {
+            $q = $db->prepare('UPDATE waiters SET name = ?, active = ? WHERE id = ? AND deleted = 0');
+            $q->execute([$name, $active ? 1 : 0, $id]);
+            if ($q->rowCount() === 0) {
+                $q = $db->prepare('SELECT 1 FROM waiters WHERE deleted = 0 AND id = ?');
+                $q->execute([$id]);
+                if (!$q->fetchColumn()) fail('Ospătarul nu există.', 404);
+            }
+            if ($pass !== '') $db->prepare('UPDATE waiters SET pass_hash = ? WHERE id = ?')->execute([password_hash($pass, PASSWORD_DEFAULT), $id]);
+        }
+        out(['ok' => true]);
+
+    case 'waiter_delete':
+        // History stays in reports: the waiter is hidden, not removed.
+        require_post();
+        require_auth();
+        $id = (int)(json_body()['id'] ?? 0);
+        $db = db();
+        $q = $db->prepare('SELECT COUNT(*) FROM shifts WHERE waiter_id = ? AND ended_at IS NULL');
+        $q->execute([$id]);
+        if ((int)$q->fetchColumn() > 0) fail('Ospătarul are o tură deschisă. Închide tura înainte de ștergere.');
+        $q = $db->prepare('UPDATE waiters SET deleted = 1, active = 0 WHERE id = ? AND deleted = 0');
+        $q->execute([$id]);
+        if ($q->rowCount() === 0) fail('Ospătarul nu există.', 404);
+        out(['ok' => true]);
+
+    case 'shifts':
+        require_auth();
+        $waiter = (int)($_GET['waiter'] ?? 0);
+        $sql = 'SELECT s.id, s.waiter_id, w.name, s.started_at, s.ended_at, s.closed_by, s.report FROM shifts s JOIN waiters w ON w.id = s.waiter_id'
+            . ($waiter ? ' WHERE s.waiter_id = ?' : '') . ' ORDER BY s.id DESC LIMIT 200';
+        $q = db()->prepare($sql);
+        $q->execute($waiter ? [$waiter] : []);
+        out(['ok' => true, 'shifts' => array_map(function ($s) {
+            $rep = $s['report'] ? json_decode($s['report'], true) : shift_stats((int)$s['id']);
+            return ['id' => (int)$s['id'], 'waiter_id' => (int)$s['waiter_id'], 'waiter' => $s['name'], 'from' => $s['started_at'], 'to' => $s['ended_at'],
+                'closed_by' => $s['closed_by'], 'paid' => $rep['paid'], 'cash' => $rep['cash'], 'card' => $rep['card'], 'cancelled' => $rep['cancelled']];
+        }, $q->fetchAll())]);
+
+    case 'shift_report':
+        require_auth();
+        $q = db()->prepare('SELECT report FROM shifts WHERE id = ?');
+        $q->execute([(int)($_GET['id'] ?? 0)]);
+        $r = $q->fetchColumn();
+        if ($r === false) fail('Tura nu există.', 404);
+        out(['ok' => true, 'report' => $r ? json_decode($r, true) : shift_stats((int)$_GET['id'])]);
+
+    case 'shift_close':
+        require_post();
+        require_auth();
+        out(['ok' => true, 'report' => close_shift((int)(json_body()['id'] ?? 0), 'admin')]);
 
     default:
         fail('Acțiune necunoscută.', 404);

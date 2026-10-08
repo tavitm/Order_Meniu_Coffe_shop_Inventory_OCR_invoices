@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Mocha | Meniu</title>
-<link rel="icon" href="assets/Logo_mocha_800.png">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="assets/fonts.css">
 <style>
   :root {
@@ -37,7 +38,7 @@
     background-attachment: fixed;
     overflow-x: hidden;
   }
-  img { display: block; max-width: 100%; }
+  img { display: block; max-width: 100%; height: auto; }
 
   /* Decor: coffee rings and beans drawn in CSS */
   .deco { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
@@ -101,6 +102,20 @@
   @media (max-width: 860px) {
     .grid { grid-template-columns: repeat(3, 1fr); }
   }
+  /* Order: floating "Comanda mea" button, tappable cards, toast */
+  .order-fab { position: fixed; z-index: 30; top: calc(12px + env(safe-area-inset-top)); right: calc(12px + env(safe-area-inset-right)); display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px 10px 13px; border-radius: 999px; background: var(--cream); color: #3a1f10; text-decoration: none; font: 600 14px/1 var(--sans); box-shadow: 0 8px 22px -6px rgba(30, 10, 0, .55); }
+  .order-fab svg { width: 22px; height: 22px; flex: none; }
+  .order-fab .badge { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #2e7a62; color: #fff; font: 600 12px/22px var(--sans); text-align: center; }
+  .order-fab .badge:empty { display: none; }
+  .order-fab.bump { animation: bump .35s ease; }
+  @keyframes bump { 40% { transform: scale(1.12); } }
+  .card.add { cursor: pointer; transition: transform .12s ease; -webkit-tap-highlight-color: transparent; }
+  .card.add:active { transform: scale(.97); }
+  .card.add:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
+  .card .plus { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 50%; background: rgba(255, 248, 239, .92); color: #3a1f10; display: grid; place-items: center; font: 600 18px/1 var(--sans); box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+  .toast { position: fixed; z-index: 40; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); translate: -50% 0; display: flex; align-items: center; justify-content: space-between; gap: 14px; width: min(380px, calc(100vw - 32px)); padding: 12px 14px 12px 18px; border-radius: 12px; background: #261d1a; color: var(--cream); font: 500 14px/1.3 var(--sans); box-shadow: 0 10px 28px rgba(0,0,0,.4); }
+  .toast button { border: 0; background: none; color: #f2c58f; font: 600 14px/1 var(--sans); padding: 6px 4px; cursor: pointer; }
+
   @media (max-width: 620px) {
     .grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .card { padding: 18px 10px 20px; border-radius: 12px; }
@@ -108,7 +123,7 @@
     .card .img img { max-height: 76px; }
     .card h3 { font-size: 18px; }
     .card p { font-size: 12px; }
-    header { padding-top: 32px; }
+    header { padding-top: 72px; }
     header h1 { margin-top: 26px; }
     .ring.r1 { width: 180px; height: 180px; right: -110px; }
     .bean.b3, .bean.b4, .bean.b5 { display: none; }
@@ -123,6 +138,10 @@
 </style>
 </head>
 <body>
+<a class="order-fab" id="orderFab" href="comanda.html" hidden aria-label="Comanda mea">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+  <span>Comanda mea</span><span class="badge" id="orderCount"></span>
+</a>
 <div class="deco" aria-hidden="true">
   <span class="ring r1"></span><span class="ring r2"></span><span class="ring r3"></span>
   <span class="bean b1"></span><span class="bean b2"></span><span class="bean b3"></span>
@@ -130,23 +149,24 @@
 </div>
 <div class="wrap">
   <header>
-    <img class="logo" id="logo" src="assets/Logo_mocha_800.png" alt="Mocha">
+    <img class="logo" id="logo" src="assets/logo-mocha.webp" width="480" height="116" alt="Mocha">
     <h1>Meniu</h1>
   </header>
   <section class="banner" id="banner" hidden><img alt=""></section>
   <main id="meniu"><p class="state">Se încarcă meniul…</p></main>
   <footer id="footer" hidden>
-    <img class="logo" src="assets/Logo_mocha_800.png" alt="">
+    <img class="logo" src="assets/logo-mocha.webp" width="480" height="116" alt="">
     <div class="days" id="days"></div>
     <div class="hours" id="hours"></div>
   </footer>
 </div>
+<script src="assets/cart.js"></script>
 <script>
 (async () => {
   const main = document.getElementById('meniu');
   let data;
   try {
-    const r = await fetch('data/menu.json?t=' + Date.now(), { cache: 'no-store' });
+    const r = await fetch('data/menu.json', { cache: 'no-cache' });
     data = await r.json();
   } catch (e) {
     main.innerHTML = '<p class="state">Meniul nu a putut fi încărcat. Reîncercați.</p>';
@@ -156,9 +176,32 @@
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   // Card colors repeat in this order: caramel, teal, caramel, dark / caramel, dark, teal, caramel
   const TONES = ['', 'teal', '', 'dark', '', 'dark', 'teal', ''];
+  const ordering = (s.orders || {}).enabled !== false;
+  const fab = document.getElementById('orderFab');
+  const showCount = () => { const n = Cart.count(); document.getElementById('orderCount').textContent = n || ''; };
+  let toastTimer;
+  const toast = (text, undo) => {
+    document.querySelector('.toast')?.remove();
+    clearTimeout(toastTimer);
+    const t = el('div', 'toast');
+    t.setAttribute('role', 'status');
+    t.append(el('span', null, text));
+    if (undo) { const u = el('button', null, 'Anulează'); u.type = 'button'; u.onclick = () => { undo(); t.remove(); }; t.append(u); }
+    document.body.append(t);
+    toastTimer = setTimeout(() => t.remove(), 3500);
+  };
+  const addToOrder = i => {
+    Cart.add(i.id);
+    showCount();
+    fab.classList.remove('bump'); void fab.offsetWidth; fab.classList.add('bump');
+    toast(`${i.name} adăugat la comandă`, () => { Cart.add(i.id, -1); showCount(); });
+  };
+  if (ordering) { fab.hidden = false; showCount(); }
+  addEventListener('pageshow', showCount);
 
   if (s.title) document.title = s.title;
-  if (s.logo) document.querySelectorAll('.logo').forEach(i => i.src = s.logo);
+  // The default logo is served as an optimized WebP; only a different logo set in the menu data replaces it.
+  if (s.logo && s.logo !== 'assets/Logo_mocha_800.png') document.querySelectorAll('.logo').forEach(i => i.src = s.logo);
 
   const b = s.banner || {};
   if (b.visible && b.image) {
@@ -196,6 +239,15 @@
       card.append(el('h3', null, i.name));
       if (i.subheader) card.append(el('div', 'qty', i.subheader));
       if (i.description) card.append(el('p', null, i.description));
+      if (ordering && priceCents(i.price) !== null) {
+        card.classList.add('add');
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-label', `Adaugă ${i.name} la comandă`);
+        card.append(el('span', 'plus', '+'));
+        card.onclick = () => addToOrder(i);
+        card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); addToOrder(i); } };
+      }
       grid.append(card);
     });
     cat.append(btn, grid);

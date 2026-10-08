@@ -1,0 +1,47 @@
+# Reguli pentru tot folderul meniului. Fiecare bloc e opțional (IfModule):
+# dacă serverul nu are modulul, regula e ignorată, nu dă eroare.
+
+Options -Indexes
+
+# 1. Totul pe HTTPS (parolele și sesiunile nu mai circulă necriptat)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !=https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+</IfModule>
+
+# 2. Fișiere care nu trebuie servite niciodată: ascunse (.htaccess, .DS_Store),
+#    jurnale de erori, baze de date, modele de configurare, documentație
+<FilesMatch "(^\.|^error_log$|\.(sqlite|sqlite-wal|sqlite-shm|log|bak|md|txt)$|\.example\.php$)">
+  Require all denied
+</FilesMatch>
+
+# 3. Antete de securitate
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "same-origin"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'"
+  Header always unset X-Powered-By
+</IfModule>
+
+# 4. Compresie pentru text (menu.json scade de ~10 ori)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript text/javascript application/json image/svg+xml
+</IfModule>
+
+# 5. Cache: fonturile și imaginile se păstrează în browser; paginile, scripturile
+#    și menu.json sunt mereu verificate (răspuns scurt 304 când nu s-au schimbat).
+<IfModule mod_headers.c>
+  <FilesMatch "\.(woff2)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  <FilesMatch "\.(webp|png|jpe?g|gif|svg)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+  <FilesMatch "\.(html|css|js|json)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

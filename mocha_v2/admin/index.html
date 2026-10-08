@@ -113,6 +113,43 @@
   .tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 9px; background: var(--soft); border: 1px solid var(--line); color: var(--muted); margin-left: 6px; vertical-align: 1px; }
   .tag.manual { background: #e8f3e9; border-color: #cfe5d1; color: var(--ok); }
   .tag.restore { background: #fff4e5; border-color: #f5dfbd; color: var(--warn); }
+  .sales-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .live-tag { font-size: 12px; color: var(--ok); background: #e8f3e9; border: 1px solid #cfe5d1; border-radius: 9px; padding: 2px 8px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 6px 0 4px; }
+  .kpi { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--soft); }
+  .kpi .v { font-size: 20px; font-weight: 700; }
+  .kpi .l { font-size: 12px; color: var(--muted); }
+  .kpi.main { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .kpi.main .l { color: rgba(255,255,255,.8); }
+  .stat-h { font-size: 14px; margin: 18px 0 6px; }
+  table.st { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.st th { text-align: left; font-weight: 600; color: var(--muted); font-size: 12px; border-bottom: 1px solid var(--line); padding: 6px 6px; }
+  table.st td { border-bottom: 1px solid var(--line); padding: 6px 6px; vertical-align: middle; }
+  table.st .n { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .barcell { width: 32%; }
+  .bar { height: 8px; border-radius: 4px; background: color-mix(in srgb, var(--accent) 70%, #fff); min-width: 2px; }
+  .scroll { max-height: 360px; overflow: auto; }
+  .wrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+  .wrow:first-child { border-top: 0; }
+  .wrow > input { flex: 1 1 170px; width: auto; }
+  .wrow .shift { flex-basis: 100%; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+  .wrow .shift b { color: var(--ok); font-weight: 600; }
+  .wadd { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line); }
+  .wadd input { flex: 1 1 180px; width: auto; }
+  .tag.auto { background: #eef1fb; border-color: #d5dcf3; color: #3949ab; }
+  .tag.open { background: #e8f3e9; border-color: #cfe5d1; color: var(--ok); }
+  .rep { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 10px 0; border-top: 1px solid var(--line); }
+  .rep:first-child { border-top: 0; }
+  .rep .meta { margin-right: auto; }
+  .rep b { font-weight: 600; }
+  @media print {
+    body > *:not(#printArea) { display: none !important; }
+    #printArea { display: block !important; padding: 0; font-size: 12px; }
+    #printArea h1 { font-size: 18px; margin: 0 0 4px; }
+    .scroll { max-height: none; overflow: visible; }
+    .kpi.main { background: #fff; color: #000; border-color: #000; }
+    .kpi.main .l { color: #555; }
+  }
   .toast { position: fixed; left: 50%; bottom: 20px; translate: -50% 0; background: #222; color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13px; z-index: 50; max-width: calc(100vw - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
   .toast.err { background: var(--danger); }
 
@@ -160,6 +197,8 @@
       <button role="tab" aria-selected="false" data-tab="offer">Imagine ofertă</button>
       <button role="tab" aria-selected="false" data-tab="settings">Setări</button>
       <button role="tab" aria-selected="false" data-tab="backup">Backup</button>
+      <button role="tab" aria-selected="false" data-tab="sales">Încasări</button>
+      <button role="tab" aria-selected="false" data-tab="waiters">Ospătari</button>
     </nav>
   </header>
 
@@ -203,6 +242,14 @@
           <label class="f"><span>Ore</span><input id="hours" maxlength="120"></label>
         </div>
       </div>
+      <div class="panel">
+        <h2>Comenzi online</h2>
+        <p class="hint">Când sunt active, clienții pot apăsa pe produse și trimite comanda din pagina „Comanda mea”. Ospătarii văd comenzile la <b>/ospatar/</b>.</p>
+        <label class="switch"><input type="checkbox" id="ordersEnabled"> Permite comenzi online</label>
+        <div class="grid2">
+          <label class="f"><span>Numărul de mese (clienții pot alege de la 1 la acest număr)</span><input id="ordersTables" type="number" min="1" max="500" step="1" inputmode="numeric"></label>
+        </div>
+      </div>
     </section>
 
     <section id="tab-backup" hidden>
@@ -225,8 +272,62 @@
         <div id="backupList"></div>
       </div>
     </section>
+
+    <section id="tab-sales" hidden>
+      <div class="panel">
+        <div class="sales-head">
+          <div>
+            <h2>Situația zilei</h2>
+            <p class="hint" id="salesPeriod"></p>
+          </div>
+          <span class="live-tag" id="salesLive">Se actualizează automat</span>
+        </div>
+        <div id="salesView"></div>
+        <div class="toolbar" style="margin-top:14px">
+          <button class="btn primary" id="closeDay">Închidere zi (Raport Z)</button>
+          <button class="btn" id="printDay">Tipărește situația</button>
+        </div>
+        <p class="hint">Închiderea zilei salvează raportul cu toate comenzile plătite și anulate, apoi pornește o zi nouă. Comenzile încă deschise trec în ziua următoare.</p>
+      </div>
+      <div class="panel">
+        <h2>Închidere automată a zilei</h2>
+        <p class="hint">La ora setată, ziua se închide singură și Raportul Z se salvează în lista de mai jos. Raportul include doar comenzile închise până la ora setată.</p>
+        <label class="switch"><input type="checkbox" id="autoEnabled"> Închide ziua automat</label>
+        <div class="toolbar" style="margin-top:10px">
+          <label class="f" style="flex:0 0 160px"><span>Ora închiderii</span><input type="time" id="autoTime" value="04:00"></label>
+          <button class="btn primary" id="autoSave" style="align-self:flex-end">Salvează ora</button>
+        </div>
+        <p class="hint" id="autoNext"></p>
+      </div>
+      <div class="panel">
+        <h2>Rapoarte Z anterioare</h2>
+        <div id="reportList"></div>
+      </div>
+    </section>
+
+    <section id="tab-waiters" hidden>
+      <div class="panel">
+        <h2>Ospătari <span class="hint" id="waiterCount"></span></h2>
+        <p class="hint">Fiecare ospătar intră la <b>/ospatar/</b> cu numele și parola lui. Plățile și anulările se înregistrează pe numele celui care le face. Parola: minimum 6 caractere.</p>
+        <div id="waiterList"></div>
+        <form class="toolbar wadd" id="waiterAdd">
+          <input id="newWaiterName" maxlength="40" placeholder="Nume ospătar nou" autocomplete="off">
+          <input id="newWaiterPass" type="password" minlength="6" placeholder="Parolă (min. 6 caractere)" autocomplete="new-password">
+          <button class="btn primary" type="submit">+ Adaugă ospătar</button>
+        </form>
+      </div>
+      <div class="panel">
+        <div class="sales-head">
+          <h2>Rapoarte pe ospătar (ture)</h2>
+          <select id="shiftFilter" style="width:auto"><option value="">Toți ospătarii</option></select>
+        </div>
+        <div id="shiftSummary"></div>
+        <div id="shiftList"></div>
+      </div>
+    </section>
   </main>
 </div>
+<div id="printArea" hidden></div>
 
 <input type="file" id="jsonPick" accept=".json,application/json" hidden>
 <input type="file" id="filePick" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
@@ -324,7 +425,7 @@ $('logoutBtn').onclick = async () => {
 
 /* ---------- data ---------- */
 async function loadMenu() {
-  const r = await fetch(ROOT + 'data/menu.json?t=' + Date.now(), { cache: 'no-store' });
+  const r = await fetch(ROOT + 'data/menu.json', { cache: 'no-cache' });
   menu = await r.json();
   menu.settings ??= {};
   menu.settings.banner ??= {};
@@ -361,7 +462,11 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
   $('tab-offer').hidden = b.dataset.tab !== 'offer';
   $('tab-settings').hidden = b.dataset.tab !== 'settings';
   $('tab-backup').hidden = b.dataset.tab !== 'backup';
+  $('tab-sales').hidden = b.dataset.tab !== 'sales';
+  $('tab-waiters').hidden = b.dataset.tab !== 'waiters';
+  if (b.dataset.tab === 'waiters') { loadWaiters(); loadShifts(); }
   if (b.dataset.tab === 'backup') loadBackups();
+  if (b.dataset.tab === 'sales') { loadSales(); loadReports(); }
 });
 
 /* ---------- backup tab ---------- */
@@ -610,6 +715,11 @@ function renderSettings() {
   $('bannerPrev').onclick = replace;
   $('bannerPrev').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); replace(); } };
   $('bannerRemove').onclick = () => { s.banner.image = ''; setDirty(); paint(); };
+  s.orders ??= { enabled: true, tables: 20 };
+  $('ordersEnabled').checked = s.orders.enabled !== false;
+  $('ordersEnabled').onchange = () => { s.orders.enabled = $('ordersEnabled').checked; setDirty(); };
+  $('ordersTables').value = s.orders.tables ?? 20;
+  $('ordersTables').oninput = () => { s.orders.tables = Math.max(1, Math.min(500, parseInt($('ordersTables').value, 10) || 1)); setDirty(); };
   for (const [id, obj, key] of [['bannerAlt', s.banner, 'alt'], ['title', s, 'title'], ['currency', s, 'currency'], ['days', s.footer, 'days'], ['hours', s.footer, 'hours']]) {
     const el = $(id);
     el.value = obj[key] ?? '';
@@ -617,6 +727,265 @@ function renderSettings() {
   }
   paint();
 }
+
+/* ---------- sales tab ---------- */
+let salesTimer = null;
+const lei = c => { const v = c / 100; return (Number.isInteger(v) ? String(v) : v.toFixed(2).replace('.', ',')) + ' ' + (menu?.settings?.currency || 'lei'); };
+const dt = d => d ? new Date(d.replace(' ', 'T')).toLocaleString('ro-RO', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+
+function statTable(head, rows, numeric) {
+  const t = h('table', { class: 'st' });
+  t.append(h('thead', {}, h('tr', {}, head.map((x, i) => h('th', { class: numeric.includes(i) ? 'n' : '' }, x)))));
+  const tb = h('tbody');
+  for (const r of rows) tb.append(h('tr', {}, r.map((x, i) => x instanceof Node ? h('td', { class: 'barcell' }, x) : h('td', { class: numeric.includes(i) ? 'n' : '' }, String(x)))));
+  t.append(tb);
+  return t;
+}
+const bar = (v, max) => h('div', { class: 'bar', style: `width:${max ? Math.max(1, Math.round(v / max * 100)) : 0}%` });
+
+function statsView(st) {
+  const box = h('div');
+  const kpi = (label, value, sub, main) => h('div', { class: 'kpi' + (main ? ' main' : '') }, h('div', { class: 'l' }, label), h('div', { class: 'v' }, value), sub ? h('div', { class: 'l' }, sub) : null);
+  box.append(h('div', { class: 'kpis' },
+    kpi('Încasat total', lei(st.paid.cents), `${st.paid.count} comenzi plătite`, true),
+    kpi('Numerar', lei(st.cash.cents), `${st.cash.count} comenzi`),
+    kpi('Card', lei(st.card.cents), `${st.card.count} comenzi`),
+    kpi('De încasat (deschise)', lei(st.open.cents), `${st.open.count} comenzi`),
+    kpi('Anulate', lei(st.cancelled.cents), `${st.cancelled.count} comenzi`)));
+
+  box.append(h('h3', { class: 'stat-h' }, 'Statistică mese'));
+  if (st.tables.length) {
+    const max = Math.max(...st.tables.map(t => t.paid_cents));
+    box.append(h('div', { class: 'scroll' }, statTable(['Masa', 'Plătite', 'Încasat', '', 'Anulate', 'Deschise'],
+      st.tables.map(t => [t.table_no, t.paid_orders, lei(t.paid_cents), bar(t.paid_cents, max), t.cancelled_orders, t.open_orders ? `${t.open_orders} (${lei(t.open_cents)})` : 0]), [1, 2, 4, 5])));
+  } else box.append(h('p', { class: 'hint' }, 'Nicio comandă încă.'));
+
+  if (st.waiters?.length) {
+    box.append(h('h3', { class: 'stat-h' }, 'Pe ospătari'));
+    box.append(h('div', { class: 'scroll' }, statTable(['Ospătar', 'Plătite', 'Numerar', 'Card', 'Total', 'Anulate'],
+      st.waiters.map(w => [w.name, w.paid_orders, lei(w.cash_cents), lei(w.card_cents), lei(w.paid_cents), w.cancelled_orders ? `${w.cancelled_orders} (${lei(w.cancelled_cents)})` : 0]), [1, 2, 3, 4, 5])));
+  }
+  box.append(h('h3', { class: 'stat-h' }, 'Statistică consum (produse plătite)'));
+  if (st.products.length) {
+    const max = Math.max(...st.products.map(p => p.qty));
+    box.append(h('div', { class: 'scroll' }, statTable(['Produs', 'Buc.', '', 'Valoare'],
+      st.products.map(p => [p.name + (p.subheader ? ` (${p.subheader})` : ''), p.qty, bar(p.qty, max), lei(p.cents)]), [1, 3])));
+  } else box.append(h('p', { class: 'hint' }, 'Niciun produs vândut încă.'));
+
+  if (st.hours.length) {
+    box.append(h('h3', { class: 'stat-h' }, 'Încasări pe ore'));
+    const max = Math.max(...st.hours.map(x => x.cents));
+    box.append(statTable(['Ora', 'Comenzi', '', 'Încasat'], st.hours.map(x => [x.hour + ':00', x.n, bar(x.cents, max), lei(x.cents)]), [1, 3]));
+  }
+
+  box.append(h('h3', { class: 'stat-h' }, 'Comenzi anulate'));
+  if (st.cancelledList.length) {
+    box.append(h('div', { class: 'scroll' }, statTable(['Comanda', 'Masa', 'Plasată', 'Anulată', 'Valoare'],
+      st.cancelledList.map(c => ['#' + c.id, c.table_no, dt(c.created_at), dt(c.closed_at), lei(c.total_cents)]), [4])));
+  } else box.append(h('p', { class: 'hint' }, 'Nicio comandă anulată.'));
+  return box;
+}
+
+let currentStats = null;
+let salesLoading = false;
+async function loadSales() {
+  clearTimeout(salesTimer);
+  if ($('tab-sales').hidden) return;
+  if (salesLoading) { salesTimer = setTimeout(loadSales, 300); return; }  // never two requests (or two timers) at once
+  salesLoading = true;
+  try {
+    const d = await api('stats');
+    currentStats = d.stats;
+    if (document.activeElement !== $('autoTime')) {
+      $('autoEnabled').checked = d.autoClose.enabled;
+      $('autoTime').value = d.autoClose.time;
+    }
+    $('autoNext').textContent = d.autoClose.enabled ? `Următoarea închidere automată: ${dt(d.autoClose.next)}.` : 'Închiderea automată este oprită.';
+    $('salesPeriod').textContent = `De la ${dt(d.stats.from)} · actualizat la ${new Date().toLocaleTimeString('ro-RO')}`;
+    $('salesView').replaceChildren(statsView(d.stats));
+    $('salesLive').textContent = 'Se actualizează automat';
+  } catch (err) {
+    $('salesLive').textContent = 'Fără conexiune';
+    if (!currentStats) $('salesView').replaceChildren(h('p', { class: 'msg' }, err.message));
+  }
+  salesLoading = false;
+  clearTimeout(salesTimer);
+  salesTimer = setTimeout(loadSales, document.hidden ? 30000 : 10000);
+}
+
+function printStats(st, title) {
+  $('printArea').replaceChildren(h('h1', {}, title), h('p', {}, `Perioada: ${dt(st.from)} – ${dt(st.to)}`), statsView(st));
+  $('printArea').hidden = false;
+  window.print();
+  $('printArea').hidden = true;
+}
+
+function csvReport(st, id) {
+  const q = v => `"${String(v).replace(/"/g, '""')}"`;
+  const m = c => (c / 100).toFixed(2);
+  const rows = [
+    ['Raport Z', '#' + id], ['De la', st.from], ['Până la', st.to], [],
+    ['Încasat total', m(st.paid.cents), st.paid.count + ' comenzi'],
+    ['Numerar', m(st.cash.cents), st.cash.count + ' comenzi'],
+    ['Card', m(st.card.cents), st.card.count + ' comenzi'],
+    ['Anulate', m(st.cancelled.cents), st.cancelled.count + ' comenzi'], [],
+    ['Masa', 'Comenzi plătite', 'Încasat', 'Anulate'],
+    ...st.tables.map(t => [t.table_no, t.paid_orders, m(t.paid_cents), t.cancelled_orders]), [],
+    ['Produs', 'Cantitate', 'Ambalaj', 'Valoare'],
+    ...st.products.map(p => [p.name, p.qty, p.subheader, m(p.cents)]),
+  ];
+  const csv = '\ufeff' + rows.map(r => r.map(q).join(';')).join('\r\n');
+  const a = h('a', { href: URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })), download: `raport-z-${id}-${st.to.slice(0, 10)}.csv` });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+async function loadReports() {
+  const box = $('reportList');
+  try {
+    const d = await api('reports');
+    box.textContent = '';
+    if (!d.reports.length) { box.append(h('div', { class: 'empty' }, 'Nu există încă rapoarte Z.')); return; }
+    for (const r of d.reports) {
+      const open = async (fn) => { try { const x = await api('report&id=' + r.id); fn(x.report); } catch (err) { toast(err.message, true); } };
+      box.append(h('div', { class: 'rep' },
+        h('div', { class: 'meta' }, h('b', {}, `Raport Z #${r.id}`), r.auto ? h('span', { class: 'tag auto' }, 'automat') : null, h('div', { class: 'hint' }, `${dt(r.from)} – ${dt(r.to)} · încasat ${lei(r.paid?.cents || 0)} · ${r.cancelled?.count || 0} anulate`)),
+        h('button', { class: 'btn', onclick: () => open(st => printStats(st, `Raport Z #${r.id}`)) }, 'Tipărește'),
+        h('button', { class: 'btn', onclick: () => open(st => csvReport(st, r.id)) }, 'Descarcă CSV')));
+    }
+  } catch (err) { box.textContent = err.message; }
+}
+
+$('printDay').onclick = () => { if (currentStats) printStats(currentStats, 'Situația zilei (neînchisă)'); };
+$('closeDay').onclick = async () => {
+  const st = currentStats;
+  const warn = st && st.open.count ? `\n\nAtenție: ${st.open.count} comenzi sunt încă deschise; ele trec în ziua următoare.` : '';
+  if (!confirm(`Închizi ziua?\n\nSe salvează Raportul Z cu încasările (${st ? lei(st.paid.cents) : '—'}) și statisticile, apoi situația pornește de la zero.${warn}`)) return;
+  try {
+    const d = await api('close_day', { body: JSON.stringify({}), json: true });
+    toast(`Ziua a fost închisă. Raport Z #${d.id} salvat.`);
+    loadSales(); loadReports();
+    if (confirm('Vrei să tipărești Raportul Z acum?')) printStats(d.report, `Raport Z #${d.id}`);
+  } catch (err) { toast(err.message, true); }
+};
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !$('tab-sales').hidden) loadSales(); });
+
+$('autoSave').onclick = async () => {
+  try {
+    await api('auto_close_save', { body: JSON.stringify({ enabled: $('autoEnabled').checked, time: $('autoTime').value }), json: true });
+    toast('Setarea a fost salvată.');
+    loadSales();
+  } catch (err) { toast(err.message, true); }
+};
+$('autoEnabled').onchange = () => $('autoSave').click();
+
+/* ---------- waiters tab ---------- */
+let waiterCache = [];
+async function loadWaiters() {
+  const box = $('waiterList');
+  try {
+    const d = await api('waiters');
+    waiterCache = d.waiters;
+    $('waiterCount').textContent = `(${d.waiters.length} din ${d.max})`;
+    $('waiterAdd').hidden = d.waiters.length >= d.max;
+    const sel = $('shiftFilter'), cur = sel.value;
+    sel.replaceChildren(h('option', { value: '' }, 'Toți ospătarii'), ...d.waiters.map(w => h('option', { value: w.id }, w.name)));
+    sel.value = cur;
+    box.textContent = '';
+    if (!d.waiters.length) { box.append(h('div', { class: 'empty' }, 'Nu există ospătari. Adaugă primul ospătar mai jos.')); return; }
+    for (const w of d.waiters) {
+      const name = h('input', { value: w.name, maxlength: 40, 'aria-label': 'Nume' });
+      const pass = h('input', { type: 'password', placeholder: 'Parolă nouă (opțional)', autocomplete: 'new-password', 'aria-label': 'Parolă nouă' });
+      const active = h('input', { type: 'checkbox', checked: w.active });
+      const save = h('button', { class: 'btn', onclick: async () => {
+        try {
+          await api('waiter_save', { body: JSON.stringify({ id: w.id, name: name.value, password: pass.value, active: active.checked }), json: true });
+          toast('Ospătarul a fost salvat.'); loadWaiters();
+        } catch (err) { toast(err.message, true); }
+      } }, 'Salvează');
+      const del = h('button', { class: 'btn danger', title: 'Șterge ospătarul', onclick: async () => {
+        if (!confirm(`Ștergi ospătarul „${w.name}”? Rapoartele lui rămân în istoric.`)) return;
+        try { await api('waiter_delete', { body: JSON.stringify({ id: w.id }), json: true }); loadWaiters(); }
+        catch (err) { toast(err.message, true); }
+      } }, '🗑');
+      const shift = h('div', { class: 'shift' });
+      if (w.open_shift) {
+        shift.append(h('b', {}, '● În tură'), `de la ${dt(w.open_shift.from)}`,
+          h('button', { class: 'btn', onclick: () => showShift(w.open_shift.id) }, 'Vezi tura'),
+          h('button', { class: 'btn', onclick: async () => {
+            if (!confirm(`Închizi tura lui ${w.name}? Ospătarul va fi delogat.`)) return;
+            try { const r = await api('shift_close', { body: JSON.stringify({ id: w.open_shift.id }), json: true }); toast('Tura a fost închisă.'); loadWaiters(); loadShifts(); printShift(r.report); }
+            catch (err) { toast(err.message, true); }
+          } }, 'Închide tura'));
+      } else shift.append(w.active ? 'Nu este în tură.' : 'Dezactivat – nu se poate autentifica.');
+      box.append(h('div', { class: 'wrow' }, name, h('label', { class: 'switch' }, active, 'Activ'), pass, save, del, shift));
+    }
+  } catch (err) { box.textContent = err.message; }
+}
+$('waiterAdd').addEventListener('submit', async e => {
+  e.preventDefault();
+  try {
+    await api('waiter_save', { body: JSON.stringify({ name: $('newWaiterName').value, password: $('newWaiterPass').value }), json: true });
+    $('newWaiterName').value = ''; $('newWaiterPass').value = '';
+    toast('Ospătar adăugat.'); loadWaiters();
+  } catch (err) { toast(err.message, true); }
+});
+
+function shiftReportView(r) {
+  const box = h('div');
+  box.append(h('p', { class: 'hint' }, `${r.waiter} · ${dt(r.from)} – ${r.closed ? dt(r.to) : 'în curs'}`));
+  const kpi = (label, value, sub, main) => h('div', { class: 'kpi' + (main ? ' main' : '') }, h('div', { class: 'l' }, label), h('div', { class: 'v' }, value), sub ? h('div', { class: 'l' }, sub) : null);
+  box.append(h('div', { class: 'kpis' },
+    kpi('Numerar de predat', lei(r.cash.cents), `${r.cash.count} comenzi`, true),
+    kpi('Card', lei(r.card.cents), `${r.card.count} comenzi`),
+    kpi('Total încasat', lei(r.paid.cents), `${r.paid.count} comenzi`),
+    kpi('Anulate', lei(r.cancelled.cents), `${r.cancelled.count} comenzi`)));
+  if (r.tables.length) box.append(h('h3', { class: 'stat-h' }, 'Mese'), statTable(['Masa', 'Plătite', 'Încasat', 'Anulate'], r.tables.map(t => [t.table_no, t.paid_orders, lei(t.paid_cents), t.cancelled_orders]), [1, 2, 3]));
+  if (r.products.length) box.append(h('h3', { class: 'stat-h' }, 'Produse încasate'), statTable(['Produs', 'Buc.', 'Valoare'], r.products.map(p => [p.name + (p.subheader ? ` (${p.subheader})` : ''), p.qty, lei(p.cents)]), [1, 2]));
+  if (r.cancelledList.length) box.append(h('h3', { class: 'stat-h' }, 'Anulate'), statTable(['Comanda', 'Masa', 'Ora', 'Valoare'], r.cancelledList.map(c => ['#' + c.id, c.table_no, dt(c.closed_at), lei(c.total_cents)]), [3]));
+  return box;
+}
+function printShift(r) {
+  $('printArea').replaceChildren(h('h1', {}, `Raport tură #${r.shift} – ${r.waiter}`), shiftReportView(r));
+  $('printArea').hidden = false; window.print(); $('printArea').hidden = true;
+}
+async function showShift(id) {
+  try { const d = await api('shift_report&id=' + id); printShift(d.report); }
+  catch (err) { toast(err.message, true); }
+}
+function csvShift(r) {
+  const q = v => `"${String(v).replace(/"/g, '""')}"`;
+  const m = c => (c / 100).toFixed(2);
+  const rows = [
+    ['Raport tură', '#' + r.shift], ['Ospătar', r.waiter], ['De la', r.from], ['Până la', r.to], [],
+    ['Numerar', m(r.cash.cents), r.cash.count + ' comenzi'], ['Card', m(r.card.cents), r.card.count + ' comenzi'],
+    ['Total încasat', m(r.paid.cents), r.paid.count + ' comenzi'], ['Anulate', m(r.cancelled.cents), r.cancelled.count + ' comenzi'], [],
+    ['Produs', 'Cantitate', 'Ambalaj', 'Valoare'], ...r.products.map(p => [p.name, p.qty, p.subheader, m(p.cents)]),
+  ];
+  const a = h('a', { href: URL.createObjectURL(new Blob(['\ufeff' + rows.map(x => x.map(q).join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' })), download: `tura-${r.shift}-${r.waiter.replace(/[^a-z0-9]+/gi, '-')}.csv` });
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+async function loadShifts() {
+  const box = $('shiftList');
+  const w = $('shiftFilter').value;
+  try {
+    const d = await api('shifts' + (w ? '&waiter=' + w : ''));
+    box.textContent = '';
+    const tot = d.shifts.reduce((a, s) => ({ cash: a.cash + s.cash.cents, card: a.card + s.card.cents, paid: a.paid + s.paid.cents, n: a.n + s.paid.count }), { cash: 0, card: 0, paid: 0, n: 0 });
+    $('shiftSummary').replaceChildren(d.shifts.length ? h('p', { class: 'hint' }, `${d.shifts.length} ture afișate · total încasat ${lei(tot.paid)} (numerar ${lei(tot.cash)}, card ${lei(tot.card)}) · ${tot.n} comenzi`) : '');
+    if (!d.shifts.length) { box.append(h('div', { class: 'empty' }, 'Nu există încă ture.')); return; }
+    for (const s of d.shifts) {
+      const get = async fn => { try { fn((await api('shift_report&id=' + s.id)).report); } catch (err) { toast(err.message, true); } };
+      box.append(h('div', { class: 'rep' },
+        h('div', { class: 'meta' }, h('b', {}, `${s.waiter} · tura #${s.id}`), s.to ? (s.closed_by === 'admin' ? h('span', { class: 'tag' }, 'închisă de admin') : null) : h('span', { class: 'tag open' }, 'în curs'),
+          h('div', { class: 'hint' }, `${dt(s.from)} – ${s.to ? dt(s.to) : 'acum'} · numerar ${lei(s.cash.cents)} · card ${lei(s.card.cents)} · ${s.cancelled.count} anulate`)),
+        h('button', { class: 'btn', onclick: () => get(printShift) }, 'Tipărește'),
+        h('button', { class: 'btn', onclick: () => get(csvShift) }, 'Descarcă CSV')));
+    }
+  } catch (err) { box.textContent = err.message; }
+}
+$('shiftFilter').onchange = loadShifts;
 
 function renderAll() { renderCats(); renderSettings(); }
 
