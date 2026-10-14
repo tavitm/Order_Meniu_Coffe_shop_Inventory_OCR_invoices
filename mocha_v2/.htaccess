@@ -19,6 +19,9 @@ Options -Indexes
 
 # 3. Antete de securitate
 <IfModule mod_headers.c>
+  # Browserul reține un an că domeniul merge doar pe HTTPS (nu mai încearcă http:// nici la prima cerere).
+  # Se aplică pe tot tudorheritage.ro, nu doar pe meniu. Dezactivare: max-age=0.
+  Header always set Strict-Transport-Security "max-age=31536000" env=HTTPS
   Header always set X-Content-Type-Options "nosniff"
   Header always set Referrer-Policy "same-origin"
   Header always set X-Frame-Options "SAMEORIGIN"

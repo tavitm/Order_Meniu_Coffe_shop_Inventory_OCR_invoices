@@ -112,6 +112,9 @@
   .card.add { cursor: pointer; transition: transform .12s ease; -webkit-tap-highlight-color: transparent; }
   .card.add:active { transform: scale(.97); }
   .card.add:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
+  .card.out .plus { display: none; }
+  .card.out .img, .card.out .price { opacity: .5; }
+  .card .ask { margin-top: 12px; padding: 5px 11px; border-radius: 999px; background: rgba(255, 248, 239, .92); color: #3a1f10; font: 600 11px/1.2 var(--sans); letter-spacing: .04em; text-transform: uppercase; }
   .card .plus { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 50%; background: rgba(255, 248, 239, .92); color: #3a1f10; display: grid; place-items: center; font: 600 18px/1 var(--sans); box-shadow: 0 2px 6px rgba(0,0,0,.25); }
   .toast { position: fixed; z-index: 40; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); translate: -50% 0; display: flex; align-items: center; justify-content: space-between; gap: 14px; width: min(380px, calc(100vw - 32px)); padding: 12px 14px 12px 18px; border-radius: 12px; background: #261d1a; color: var(--cream); font: 500 14px/1.3 var(--sans); box-shadow: 0 10px 28px rgba(0,0,0,.4); }
   .toast button { border: 0; background: none; color: #f2c58f; font: 600 14px/1 var(--sans); padding: 6px 4px; cursor: pointer; }
@@ -149,13 +152,13 @@
 </div>
 <div class="wrap">
   <header>
-    <img class="logo" id="logo" src="assets/logo-mocha.webp" width="480" height="116" alt="Mocha">
+    <img class="logo" id="logo" src="assets/logo-mocha-cafe.webp" width="720" height="298" alt="Mocha">
     <h1>Meniu</h1>
   </header>
   <section class="banner" id="banner" hidden><img alt=""></section>
   <main id="meniu"><p class="state">Se încarcă meniul…</p></main>
   <footer id="footer" hidden>
-    <img class="logo" src="assets/logo-mocha.webp" width="480" height="116" alt="">
+    <img class="logo" src="assets/logo-mocha-cafe.webp" width="720" height="298" alt="">
     <div class="days" id="days"></div>
     <div class="hours" id="hours"></div>
   </footer>
@@ -188,9 +191,37 @@
     t.append(el('span', null, text));
     if (undo) { const u = el('button', null, 'Anulează'); u.type = 'button'; u.onclick = () => { undo(); t.remove(); }; t.append(u); }
     document.body.append(t);
-    toastTimer = setTimeout(() => t.remove(), 3500);
+    toastTimer = setTimeout(() => t.remove(), Math.max(3500, text.length * 60));
+  };
+  // With "block products without stock" on, the server says how many pieces are left of each tracked product.
+  const stockCheck = ordering && (s.orders || {}).stockCheck === true;
+  let stock = {};
+  const cards = new Map();
+  const left = id => (stock && typeof stock[id] === 'number' ? stock[id] : Infinity);
+  const askWaiter = i => {
+    const name = i.name + (i.subheader ? ` (${i.subheader})` : '');
+    const n = left(i.id);
+    toast(n > 0 ? `Pentru produsul ${name} mai avem doar ${n} buc. Pentru mai multe, întreabă ospătarul.` : `Pentru produsul ${name} întreabă ospătarul.`);
+  };
+  const applyStock = () => {
+    for (const [id, { card, item }] of cards) {
+      const out = left(id) <= 0;
+      card.classList.toggle('out', out);
+      card.setAttribute('aria-label', out ? `${item.name}: întreabă ospătarul` : `Adaugă ${item.name} la comandă`);
+      let ask = card.querySelector('.ask');
+      if (out && !ask) card.append(ask = el('span', 'ask', 'Întreabă ospătarul'));
+      if (!out && ask) ask.remove();
+    }
+  };
+  const loadStock = async () => {
+    if (!stockCheck) return;
+    try {
+      const d = await (await fetch('order.php?action=stock', { cache: 'no-store' })).json();
+      if (d.ok) { stock = d.stock || {}; applyStock(); }
+    } catch {}
   };
   const addToOrder = i => {
+    if ((Cart.items()[i.id] || 0) + 1 > left(i.id)) { askWaiter(i); return; }
     Cart.add(i.id);
     showCount();
     fab.classList.remove('bump'); void fab.offsetWidth; fab.classList.add('bump');
@@ -245,6 +276,7 @@
         card.setAttribute('role', 'button');
         card.setAttribute('aria-label', `Adaugă ${i.name} la comandă`);
         card.append(el('span', 'plus', '+'));
+        cards.set(i.id, { card, item: i });
         card.onclick = () => addToOrder(i);
         card.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); addToOrder(i); } };
       }
@@ -254,6 +286,9 @@
     main.append(cat);
   }
   if (!main.children.length) main.innerHTML = '<p class="state">Meniul este momentan gol.</p>';
+  loadStock();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) loadStock(); });
+  addEventListener('pageshow', e => { if (e.persisted) loadStock(); });
 
   const f = s.footer || {};
   if (f.days || f.hours) {

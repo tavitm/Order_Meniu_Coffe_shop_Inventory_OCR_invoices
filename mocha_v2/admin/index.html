@@ -189,6 +189,7 @@
     <div class="top-in">
       <h1>Administrare meniu</h1>
       <a class="btn" href="../" target="_blank" rel="noopener">Vezi meniul ↗</a>
+      <a class="btn" href="../inventar/" target="_blank" rel="noopener">Inventar ↗</a>
       <div class="savebar"><span class="status" id="status">Salvat</span><button class="btn primary" id="saveBtn" disabled>Salvează</button></div>
       <button class="btn" id="logoutBtn">Ieșire</button>
     </div>
@@ -249,6 +250,8 @@
         <div class="grid2">
           <label class="f"><span>Numărul de mese (clienții pot alege de la 1 la acest număr)</span><input id="ordersTables" type="number" min="1" max="500" step="1" inputmode="numeric"></label>
         </div>
+        <label class="switch"><input type="checkbox" id="ordersStockCheck"> Blochează produsele fără stoc</label>
+        <p class="hint">Când e activ, un produs marcat „Urmărit” în <a href="../inventar/" target="_blank" rel="noopener">Inventar</a> nu mai poate fi comandat online dacă nu mai e pe stoc. Clientul vede „Pentru produsul … întreabă ospătarul”. Se socotește stocul din inventar minus ce s-a comandat deja și nu s-a plătit. Produsele neurmărite se comandă ca până acum. Când e oprit, comenzile merg fără nicio verificare de stoc.</p>
       </div>
     </section>
 
@@ -308,11 +311,11 @@
     <section id="tab-waiters" hidden>
       <div class="panel">
         <h2>Ospătari <span class="hint" id="waiterCount"></span></h2>
-        <p class="hint">Fiecare ospătar intră la <b>/ospatar/</b> cu numele și parola lui. Plățile și anulările se înregistrează pe numele celui care le face. Parola: minimum 6 caractere.</p>
+        <p class="hint">Fiecare ospătar intră la <b>/ospatar/</b> cu numele și parola lui. Plățile și anulările se înregistrează pe numele celui care le face. Parola: minimum 8 caractere; nu se acceptă numele ospătarului sau cifre în ordine.</p>
         <div id="waiterList"></div>
         <form class="toolbar wadd" id="waiterAdd">
           <input id="newWaiterName" maxlength="40" placeholder="Nume ospătar nou" autocomplete="off">
-          <input id="newWaiterPass" type="password" minlength="6" placeholder="Parolă (min. 6 caractere)" autocomplete="new-password">
+          <input id="newWaiterPass" type="password" minlength="8" placeholder="Parolă (min. 8 caractere)" autocomplete="new-password">
           <button class="btn primary" type="submit">+ Adaugă ospătar</button>
         </form>
       </div>
@@ -718,6 +721,8 @@ function renderSettings() {
   s.orders ??= { enabled: true, tables: 20 };
   $('ordersEnabled').checked = s.orders.enabled !== false;
   $('ordersEnabled').onchange = () => { s.orders.enabled = $('ordersEnabled').checked; setDirty(); };
+  $('ordersStockCheck').checked = s.orders.stockCheck === true;
+  $('ordersStockCheck').onchange = () => { s.orders.stockCheck = $('ordersStockCheck').checked; setDirty(); };
   $('ordersTables').value = s.orders.tables ?? 20;
   $('ordersTables').oninput = () => { s.orders.tables = Math.max(1, Math.min(500, parseInt($('ordersTables').value, 10) || 1)); setDirty(); };
   for (const [id, obj, key] of [['bannerAlt', s.banner, 'alt'], ['title', s, 'title'], ['currency', s, 'currency'], ['days', s.footer, 'days'], ['hours', s.footer, 'hours']]) {

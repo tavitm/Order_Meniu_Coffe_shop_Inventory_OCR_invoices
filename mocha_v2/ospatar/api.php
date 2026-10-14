@@ -23,11 +23,20 @@ function me(): array
     return ['id' => (int)$me['id'], 'name' => $me['name'], 'shift_id' => (int)$me['shift_id'], 'started_at' => $me['started_at']];
 }
 
+/** Close the matching open orders; paid ones also come out of the tracked stock, in the same transaction. */
 function close_orders(array $me, string $where, array $args, string $status, ?string $payment): int
 {
-    $q = db()->prepare("UPDATE orders SET status = ?, payment = ?, closed_at = ?, waiter_id = ?, shift_id = ? WHERE status = 'open' AND ($where)");
-    $q->execute(array_merge([$status, $payment, now(), $me['id'], $me['shift_id']], $args));
-    return $q->rowCount();
+    return in_transaction(function (PDO $db) use ($me, $where, $args, $status, $payment) {
+        $q = $db->prepare("SELECT id FROM orders WHERE status = 'open' AND ($where)");
+        $q->execute($args);
+        $ids = array_map('intval', $q->fetchAll(PDO::FETCH_COLUMN));
+        if (!$ids) return 0;
+        $in = implode(',', array_fill(0, count($ids), '?'));
+        $db->prepare("UPDATE orders SET status = ?, payment = ?, closed_at = ?, waiter_id = ?, shift_id = ? WHERE id IN ($in)")
+            ->execute(array_merge([$status, $payment, now(), $me['id'], $me['shift_id']], $ids));
+        if ($status === 'paid') stock_record_sales($ids);
+        return count($ids);
+    });
 }
 
 function payment_method(array $body): string

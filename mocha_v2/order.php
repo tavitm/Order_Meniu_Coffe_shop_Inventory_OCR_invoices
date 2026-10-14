@@ -9,9 +9,20 @@ function client_token(mixed $v): string
     return $v;
 }
 
-/** The client's open orders merged into one list, plus totals and the pending bill request. */
+/**
+ * What clients may still order when "block products without stock" is on: product id => pieces (capped at the
+ * 50 allowed per line, so exact stock levels above that are not published). Null when the check is off.
+ */
+function public_stock(array $cfg): ?array
+{
+    if (!$cfg['enabled'] || !$cfg['stockCheck']) return null;
+    return array_map(fn($n) => min($n, 50), stock_available());
+}
+
+/** The client's open orders merged into one list, plus totals, the pending bill request and what can still be ordered. */
 function client_view(string $client): array
 {
+    global $cfg;
     $orders = open_orders('client = ?', [$client]);
     $lines = [];
     $total = 0;
@@ -31,6 +42,7 @@ function client_view(string $client): array
         'items' => array_values($lines),
         'total_cents' => $total,
         'pay_request' => $payRequest,
+        'stock' => public_stock($cfg),
     ];
 }
 
@@ -40,9 +52,16 @@ $menu = load_menu();
 $cfg = order_settings($menu);
 
 switch ($action) {
+    case 'stock':
+        // Read by the menu page on load, so it can mark the products to ask the waiter about.
+        rate_limit('stock-ip:' . client_ip(), 2000, 600);
+        out(['ok' => true, 'stock' => public_stock($cfg)]);
+
     case 'mine':
-        // POST keeps the client id out of URLs and server logs; GET is still accepted.
-        out(client_view(client_token($_SERVER['REQUEST_METHOD'] === 'POST' ? (json_body()['client'] ?? '') : ($_GET['client'] ?? ''))));
+        // POST only, so the client id never ends up in URLs or server logs. Polled every 15 s per phone.
+        require_post();
+        rate_limit('mine-ip:' . client_ip(), 2000, 600);
+        out(client_view(client_token(json_body()['client'] ?? '')));
 
     case 'submit':
         require_post();
@@ -68,6 +87,7 @@ switch ($action) {
         }
         $lines = [];
         $total = 0;
+        $pieces = [];
         foreach ($wanted as $w) {
             $id = is_array($w) && is_string($w['id'] ?? null) ? $w['id'] : '';
             $qty = is_array($w) ? filter_var($w['qty'] ?? null, FILTER_VALIDATE_INT) : false;
@@ -75,6 +95,7 @@ switch ($action) {
             if ($qty === false || $qty < 1 || $qty > 50) fail('Cantitate invalidă pentru „' . $catalog[$id]['name'] . '”.');
             $lines[] = $catalog[$id] + ['id' => $id, 'qty' => $qty];
             $total += $catalog[$id]['price_cents'] * $qty;
+            $pieces[$id] = ($pieces[$id] ?? 0) + $qty;
         }
 
         // Per phone, plus a generous per-IP cap: all guests on the café Wi-Fi share one public IP.
@@ -86,14 +107,28 @@ switch ($action) {
         $openTable = $q->fetchColumn();
         if ($openTable !== false && (int)$openTable !== $table) fail('Ai deja o comandă deschisă la masa ' . $openTable . '.', 409);
 
-        $db->beginTransaction();
-        $db->prepare('INSERT INTO orders (table_no, client, status, total_cents, created_at) VALUES (?, ?, \'open\', ?, ?)')
-            ->execute([$table, $client, $total, now()]);
-        $orderId = (int)$db->lastInsertId();
-        $ins = $db->prepare('INSERT INTO order_items (order_id, product_id, name, subheader, price_cents, qty) VALUES (?, ?, ?, ?, ?, ?)');
-        foreach ($lines as $l) $ins->execute([$orderId, $l['id'], $l['name'], $l['subheader'], $l['price_cents'], $l['qty']]);
-        $db->commit();
-        out(['order' => $orderId] + client_view($client));
+        // The stock check and the insert share one write transaction: two phones cannot both take the last bottle.
+        $refused = in_transaction(function (PDO $db) use ($cfg, $pieces, $catalog, $table, $client, $total, $lines) {
+            if ($cfg['stockCheck']) {
+                $available = stock_available();
+                $msgs = [];
+                foreach ($pieces as $id => $qty) {
+                    if (isset($available[$id]) && $qty > $available[$id]) {
+                        $c = $catalog[$id];
+                        $msgs[] = stock_message($c['name'] . ($c['subheader'] !== '' ? ' (' . $c['subheader'] . ')' : ''), $available[$id]);
+                    }
+                }
+                if ($msgs) return implode(' ', $msgs);
+            }
+            $db->prepare('INSERT INTO orders (table_no, client, status, total_cents, created_at) VALUES (?, ?, \'open\', ?, ?)')
+                ->execute([$table, $client, $total, now()]);
+            $orderId = (int)$db->lastInsertId();
+            $ins = $db->prepare('INSERT INTO order_items (order_id, product_id, name, subheader, price_cents, qty) VALUES (?, ?, ?, ?, ?, ?)');
+            foreach ($lines as $l) $ins->execute([$orderId, $l['id'], $l['name'], $l['subheader'], $l['price_cents'], $l['qty']]);
+            return $orderId;
+        });
+        if (is_string($refused)) out(['ok' => false, 'error' => $refused, 'stock' => public_stock($cfg)], 409);
+        out(['order' => $refused] + client_view($client));
 
     case 'pay':
         require_post();

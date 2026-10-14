@@ -5,6 +5,7 @@ Meniul public:   http://tudorheritage.ro/mocha/
 Comanda mea:     http://tudorheritage.ro/mocha/comanda.html  (se deschide din meniu)
 Ospătar:         http://tudorheritage.ro/mocha/ospatar/
 Administrare:    http://tudorheritage.ro/mocha/admin/  (tab „Încasări” = situația zilei)
+Inventar:        http://tudorheritage.ro/mocha/inventar/  (aceeași parolă ca la administrare)
 
 INSTALARE (o singură dată)
 1. Deschide admin/config.php și scrie parola între ghilimele:
@@ -18,7 +19,7 @@ INSTALARE (o singură dată)
 4. Folderele data/ și uploads/ trebuie să poată fi scrise de PHP
    (de obicei permisiuni 755 ajung; dacă salvarea dă eroare, încearcă 775).
 5. Ospătarii (maximum 6) se adaugă din Administrare → tab „Ospătari”, fiecare cu
-   numele și parola lui (minimum 6 caractere). Nu mai există o parolă comună în config.php.
+   numele și parola lui (minimum 8 caractere; nu se acceptă numele lui sau cifre în ordine). Nu mai există o parolă comună în config.php.
 6. Comenzile se salvează într-o bază SQLite (data/db/orders.sqlite, creată automat).
    Serverul trebuie să aibă extensia „pdo_sqlite” activă (cPanel → Select PHP Version
    → Extensions). Folderul data/db/ e protejat; nu-l șterge.
@@ -60,12 +61,46 @@ COMENZI
   declanșează la prima activitate după ora setată (orice deschidere de meniu sau pagina
   ospătarului) și include doar comenzile închise până la ora setată.
 
+INVENTAR (/inventar/)
+- Intri cu parola de administrare. Sesiunea e separată de cea din admin: te autentifici
+  o dată în fiecare pagină.
+- Fiecare produs din meniu are automat un rând în inventar. Un produs nou primește rândul
+  la „Salvează” în admin; redenumirile și mutările între categorii se preiau singure;
+  un produs șters din meniu trece la „Arhivate”, cu tot istoricul.
+- „Urmărit”: pornește-l la produsele care se vând așa cum se cumpără (băuturi la sticlă,
+  bere). Când ospătarul marchează o comandă online ca plătită, stocul lor scade automat.
+  Comenzile anulate nu modifică stocul. Produsele neurmărite nu se modifică.
+- Ingredientele și consumabilele (cafea boabe, lapte, sticle de spirtoase, pahare) se
+  adaugă cu „+ Articol nou”: nume, grupă, unitate de măsură, stoc minim, stoc inițial.
+- „+ Recepție marfă”: introduci o factură întreagă (nr. document + rânduri articol/cantitate).
+- „Mișcare” pe un rând: Intrare, Ieșire (spart, expirat, consum intern, vânzare la bar)
+  sau Inventar (scrii stocul numărat; diferența se înregistrează automat).
+- Stocul minim: articolele la sau sub minim apar cu ⚠; cele cu stoc negativ, cu roșu.
+- Tab-ul „Mișcări”: istoricul tuturor intrărilor, ieșirilor, inventarelor și vânzărilor
+  (ce, cât, când, documentul), cu descărcare CSV. Stocul curent se descarcă tot în CSV.
+- Ce NU scade stocul automat: vânzările care nu trec prin comenzile online și
+  ingredientele consumate de cafele/cocktailuri. Pentru ele faci „Ieșire” sau „Inventar”.
+- Admin → Setări → „Blochează produsele fără stoc” (oprit implicit): când e pornit, un produs
+  „Urmărit” care nu mai e disponibil apare în meniu cu „Întreabă ospătarul” și nu poate fi
+  comandat; clientul vede „Pentru produsul … întreabă ospătarul”. Disponibil = stocul din
+  inventar minus ce s-a comandat deja și nu s-a plătit (în inventar apare „… în comenzi”).
+  Dacă mai sunt doar câteva bucăți, clientul nu poate comanda mai multe decât sunt.
+  Produsele neurmărite nu sunt afectate. Înainte să-l pornești, pune stocul real la
+  produsele urmărite: un produs urmărit cu stoc 0 devine imediat indisponibil.
+- Stocurile stau în baza de date data/db/orders.sqlite, nu în backup-ul meniului din
+  tab-ul „Backup”. Ca siguranță, descarcă periodic CSV-ul de stoc.
+
 SECURITATE ȘI VITEZĂ (.htaccess din folderul principal)
 - Redirecționează automat totul pe HTTPS, blochează listarea folderelor și fișierele
   ascunse/jurnalele, trimite antete de securitate, comprimă textul și păstrează
   fonturile/imaginile în cache. Urcă-l obligatoriu (e ascuns pe Mac: Cmd+Shift+.).
 - Opțional, parola de admin din config.php poate fi pusă ca hash în loc de text clar
   (rezultatul password_hash('parola', PASSWORD_DEFAULT) din PHP).
+- Sesiunea de admin durează maximum 3 luni, dar expiră după 24 de ore fără nicio deschidere
+  a paginii de administrare; cea de ospătar durează 14 ore. După expirare se cere parola din nou.
+- Antetul Strict-Transport-Security spune browserelor să folosească doar HTTPS pe tot domeniul
+  tudorheritage.ro timp de un an. Dacă vreodată o parte a site-ului trebuie să meargă pe http://,
+  schimbă în .htaccess valoarea în max-age=0 și urcă fișierul.
 
 ATENȚIE: când urci din nou fișierele pe server, NU suprascrie data/menu.json,
 folderul data/db/ și folderul uploads/, altfel pierzi modificările și comenzile.

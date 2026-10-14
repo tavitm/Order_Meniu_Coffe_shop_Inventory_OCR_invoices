@@ -6,7 +6,7 @@ const ROOT = __DIR__ . '/..';
 const BACKUP_DIR = ROOT . '/data/backups';
 const UPLOAD_DIR = ROOT . '/uploads';
 
-start_session('mocha_admin', 90 * 24 * 3600); // 3 luni
+start_session('mocha_admin', 90 * 24 * 3600, 24 * 3600); // maximum 3 luni, dar expiră după 24 h fără nicio cerere
 maybe_auto_close();
 
 function logged_in(): bool
@@ -19,13 +19,6 @@ function require_auth(): void
     if (!logged_in()) fail('Sesiunea a expirat. Autentifică-te din nou.', 401);
     $token = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
     if (!is_string($token) || !hash_equals($_SESSION['csrf'] ?? '', $token)) fail('Cerere invalidă (token).', 403);
-}
-
-function clean_str(mixed $v, int $max = 500): string
-{
-    if (!is_string($v) && !is_int($v) && !is_float($v)) return '';
-    $v = trim(preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', (string)$v) ?? '');
-    return mb_substr($v, 0, $max);
 }
 
 // Only image files directly inside uploads/ or assets/ (no dotfiles, no other extensions).
@@ -43,6 +36,21 @@ function clean_id(mixed $v, string $prefix): string
 {
     $v = clean_str($v, 40);
     return preg_match('/^[A-Za-z0-9_-]+$/', $v) ? $v : $prefix . bin2hex(random_bytes(4));
+}
+
+/** Waiter names are public (the login buttons), so the password alone protects the account: refuse the guessable ones. */
+function check_waiter_password(string $pass, string $name): void
+{
+    if (mb_strlen($pass) < 8) fail('Parola trebuie să aibă minimum 8 caractere.');
+    $low = mb_strtolower($pass);
+    $common = ['12345678', '123456789', '1234567890', '87654321', 'password', 'password1', 'parola123', 'parola1234',
+        'qwertyui', 'qwerty123', 'abcdefgh', 'iloveyou', 'ospatar1', 'ospatar123', 'mocha123', 'mocha1234', 'mocha2026'];
+    $trivial = in_array($low, $common, true)
+        || preg_match('/^(.)\1+$/u', $low)                        // același caracter repetat
+        || str_contains('01234567890123456789', $low)             // cifre în ordine (12345678, 23456789…)
+        || str_contains('09876543210987654321', $low)
+        || (mb_strlen($name) >= 3 && str_contains($low, mb_strtolower($name)));
+    if ($trivial) fail('Parola este prea ușor de ghicit. Alege alta: nu numele ospătarului, nu cifre în ordine.');
 }
 
 function clean_menu(array $in): array
@@ -68,6 +76,7 @@ function clean_menu(array $in): array
             'orders' => [
                 'enabled' => (bool)($o['enabled'] ?? true),
                 'tables' => max(1, min(500, (int)($o['tables'] ?? 20))),
+                'stockCheck' => (bool)($o['stockCheck'] ?? false),
             ],
         ],
         'categories' => [],
@@ -98,6 +107,12 @@ function clean_menu(array $in): array
         $menu['categories'][] = $cat;
     }
     return $menu;
+}
+
+/** New menu products get their inventory row right away. The menu is already saved, so a failure here is only logged. */
+function sync_stock(array $menu): void
+{
+    try { stock_sync_menu($menu); } catch (Throwable $e) { error_log('[mocha] stock sync: ' . $e); }
 }
 
 function write_atomic(string $file, string $content): void
@@ -173,6 +188,7 @@ function restore_menu(array $in): array
     $menu = clean_menu($in);
     $before = is_file(MENU_FILE) ? new_backup('restore') : null;
     write_atomic(MENU_FILE, json_encode($menu, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+    sync_stock($menu);
     return ['menu' => $menu, 'before' => $before];
 }
 
@@ -208,6 +224,7 @@ switch ($action) {
         $menu = clean_menu($in);
         backup_menu();
         write_atomic(MENU_FILE, json_encode($menu, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+        sync_stock($menu);
         out(['ok' => true, 'menu' => $menu]);
 
     case 'upload':
@@ -399,7 +416,7 @@ switch ($action) {
         $q = $db->prepare('SELECT COUNT(*) FROM waiters WHERE deleted = 0 AND name = ? COLLATE NOCASE AND id <> ?');
         $q->execute([$name, $id]);
         if ((int)$q->fetchColumn() > 0) fail('Există deja un ospătar cu acest nume.');
-        if ($pass !== '' && mb_strlen($pass) < 6) fail('Parola trebuie să aibă minimum 6 caractere.');
+        if ($pass !== '') check_waiter_password($pass, $name);
         if ($id === 0) {
             if ((int)$db->query('SELECT COUNT(*) FROM waiters WHERE deleted = 0')->fetchColumn() >= MAX_WAITERS) fail('Poți avea maximum ' . MAX_WAITERS . ' ospătari. Șterge unul înainte să adaugi altul.');
             if ($pass === '') fail('Setează o parolă pentru ospătarul nou.');

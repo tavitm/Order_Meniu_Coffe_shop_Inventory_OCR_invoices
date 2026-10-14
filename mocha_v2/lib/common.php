@@ -51,9 +51,11 @@ function json_body(int $max = 200_000): array
 /**
  * Session with its own storage folder and lifetime. The lifetime is absolute, counted from login:
  * the cookie expires then, and the session is refused after that even if the cookie survives.
- * A dedicated folder per session type keeps the host's (or the other type's) cleanup from deleting it early.
+ * With $idle, the session also ends after that many seconds without any request (a lost device
+ * stops being logged in sooner). A dedicated folder per session type keeps the host's (or the
+ * other type's) cleanup from deleting it early.
  */
-function start_session(string $name, int $lifetime): void
+function start_session(string $name, int $lifetime, int $idle = 0): void
 {
     $dir = APP_ROOT . '/data/sessions/' . preg_replace('/[^a-z0-9_-]/i', '', $name);
     if (!is_dir($dir)) @mkdir($dir, 0700, true);
@@ -70,9 +72,15 @@ function start_session(string $name, int $lifetime): void
         'samesite' => 'Strict',
     ]);
     session_start();
-    if (!empty($_SESSION['auth']) && (int)($_SESSION['login_at'] ?? 0) + $lifetime < time()) {
-        $_SESSION = [];
-        session_regenerate_id(true);
+    if (!empty($_SESSION['auth'])) {
+        $now = time();
+        $last = (int)($_SESSION['seen_at'] ?? $_SESSION['login_at'] ?? 0);
+        if ((int)($_SESSION['login_at'] ?? 0) + $lifetime < $now || ($idle > 0 && $last + $idle < $now)) {
+            $_SESSION = [];
+            session_regenerate_id(true);
+        } else {
+            $_SESSION['seen_at'] = $now;
+        }
     }
 }
 
@@ -108,6 +116,14 @@ function require_session_auth(): void
     if (!is_string($token) || !hash_equals($_SESSION['csrf'] ?? '', $token)) fail('Cerere invalidă (token).', 403);
 }
 
+/** Single-line text from the browser: control characters removed, trimmed, cut to $max characters. */
+function clean_str(mixed $v, int $max = 500): string
+{
+    if (!is_string($v) && !is_int($v) && !is_float($v)) return '';
+    $v = trim(preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', (string)$v) ?? '');
+    return mb_substr($v, 0, $max);
+}
+
 function load_menu(): array
 {
     $menu = json_decode((string)@file_get_contents(MENU_FILE), true);
@@ -121,6 +137,7 @@ function order_settings(array $menu): array
     return [
         'enabled' => (bool)($s['enabled'] ?? true),
         'tables' => max(1, min(500, (int)($s['tables'] ?? 20))),
+        'stockCheck' => (bool)($s['stockCheck'] ?? false),
     ];
 }
 
@@ -133,7 +150,7 @@ function to_cents(string $price): ?int
 
 /* ---------- database ---------- */
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 function db(): PDO
 {
@@ -210,6 +227,34 @@ function db(): PDO
             key TEXT PRIMARY KEY,
             value TEXT NOT NULL
         );
+        -- Inventory. Quantities are integers in thousandths of the unit (3,5 kg = 3500).
+        CREATE TABLE IF NOT EXISTS stock_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            product_id TEXT UNIQUE,
+            name TEXT NOT NULL,
+            variant TEXT NOT NULL DEFAULT '',
+            grp TEXT NOT NULL DEFAULT '',
+            pos INTEGER NOT NULL DEFAULT 0,
+            unit TEXT NOT NULL DEFAULT 'buc',
+            qty INTEGER NOT NULL DEFAULT 0,
+            min_qty INTEGER NOT NULL DEFAULT 0,
+            tracked INTEGER NOT NULL DEFAULT 1,
+            archived INTEGER NOT NULL DEFAULT 0,
+            created_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS stock_moves (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            item_id INTEGER NOT NULL REFERENCES stock_items(id),
+            kind TEXT NOT NULL,
+            qty INTEGER NOT NULL,
+            balance INTEGER NOT NULL,
+            doc TEXT NOT NULL DEFAULT '',
+            note TEXT NOT NULL DEFAULT '',
+            order_id INTEGER,
+            created_at TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS stock_moves_item ON stock_moves(item_id, id);
+        CREATE INDEX IF NOT EXISTS stock_moves_kind ON stock_moves(kind, id);
     SQL);
     // Columns added after the first release.
     $cols = array_column($pdo->query('PRAGMA table_info(orders)')->fetchAll(), 'name');
@@ -233,6 +278,21 @@ function setting(string $key, ?string $default = null): ?string
 function set_setting(string $key, string $value): void
 {
     db()->prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value')->execute([$key, $value]);
+}
+
+/** Runs $fn inside a write transaction; rolls back if it throws. */
+function in_transaction(callable $fn): mixed
+{
+    $db = db();
+    $db->exec('BEGIN IMMEDIATE');
+    try {
+        $result = $fn($db);
+        $db->exec('COMMIT');
+        return $result;
+    } catch (Throwable $e) {
+        try { $db->exec('ROLLBACK'); } catch (Throwable) {}
+        throw $e;
+    }
 }
 
 function now(): string
@@ -487,3 +547,5 @@ function close_shift(int $shiftId, string $by): array
     $db->exec('COMMIT');
     return $report;
 }
+
+require_once __DIR__ . '/stock.php';

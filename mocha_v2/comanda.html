@@ -77,6 +77,9 @@
   .stepper button { width: 38px; height: 38px; border: 0; background: none; cursor: pointer; font-size: 20px; line-height: 1; color: var(--ink); border-radius: 50%; }
   .stepper button:hover { background: #f3ebe0; }
   .stepper output { min-width: 26px; text-align: center; font-weight: 600; }
+  .stepper button:disabled { opacity: .3; cursor: default; background: none; }
+  .line .warn { grid-column: 1 / -1; margin: 2px 0 0; padding: 8px 10px; border-radius: 10px; background: #f8e3e0; color: var(--danger); font-size: 13.5px; font-weight: 600; }
+  .blocked { margin: 12px 0 0; color: var(--danger); font-size: 13.5px; font-weight: 600; }
   .line .ctl { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; }
   .sent .line { grid-template-columns: auto 1fr auto; }
   .sent .q { font-weight: 600; color: var(--muted); min-width: 28px; }
@@ -124,6 +127,7 @@
       <h2>De trimis</h2>
       <div id="cartLines"></div>
       <div class="subtotal" id="cartSubtotal"></div>
+      <p class="blocked" id="blockedNote" role="alert" hidden>Scoate sau micșorează produsele marcate ca să poți trimite comanda.</p>
       <button class="btn" id="sendBtn" style="margin-top:14px">Trimite comanda</button>
     </section>
 
@@ -178,7 +182,7 @@ async function api(action, body = {}) {
   const r = await fetch('order.php?action=' + action, { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ client, ...body }) });
   let d;
   try { d = await r.json(); } catch { throw new Error('Serverul nu răspunde. Încearcă din nou.'); }
-  if (!r.ok || d.ok === false) { const e = new Error(d.error || 'Eroare.'); e.status = r.status; throw e; }
+  if (!r.ok || d.ok === false) { const e = new Error(d.error || 'Eroare.'); e.status = r.status; e.data = d; throw e; }
   return d;
 }
 
@@ -210,6 +214,13 @@ function showOrderStep() {
   render();
 }
 
+/** Pieces still orderable (only when the café blocks products without stock; otherwise unlimited). */
+const left = id => (server.stock && typeof server.stock[id] === 'number' ? server.stock[id] : Infinity);
+function stockMsg(p, n) {
+  const name = p.name + (p.subheader ? ` (${p.subheader})` : '');
+  return n > 0 ? `Pentru produsul ${name} mai avem doar ${n} buc. Pentru mai multe, întreabă ospătarul.` : `Pentru produsul ${name} întreabă ospătarul.`;
+}
+
 function render() {
   const table = server.table || Cart.table();
   $('tableLabel').textContent = 'Masa ' + table;
@@ -220,6 +231,7 @@ function render() {
   const box = $('cartLines');
   box.textContent = '';
   let cartTotal = 0;
+  let blocked = 0;
   for (const [id, qty] of Object.entries(Cart.items())) {
     const p = catalog[id];
     if (!p) { Cart.setQty(id, 0); continue; }
@@ -232,11 +244,15 @@ function render() {
     const plus = el('button', null, '+'); plus.type = 'button'; plus.setAttribute('aria-label', 'Crește cantitatea');
     const out = el('output', null, qty);
     minus.onclick = () => { Cart.setQty(id, qty - 1); render(); };
-    plus.onclick = () => { Cart.setQty(id, qty + 1); render(); };
+    plus.onclick = () => { if (qty + 1 > left(id)) { toast(stockMsg(p, left(id)), true); return; } Cart.setQty(id, qty + 1); render(); };
     stepper.append(minus, out, plus);
     const ctl = el('div', 'ctl');
     ctl.append(stepper, el('div', 'sum', money(p.cents * qty) + ' ' + currency));
     line.append(name, el('div', 'unit', money(p.cents) + ' ' + currency + ' / buc.'), ctl);
+    if (qty > left(id)) {
+      blocked++;
+      line.append(el('p', 'warn', stockMsg(p, left(id))));
+    }
     box.append(line);
   }
   const empty = !box.children.length;
@@ -251,7 +267,8 @@ function render() {
   $('cartSubtotal').append(el('span', null, 'Subtotal de trimis'), el('span', null, money(cartTotal) + ' ' + currency));
   $('sendBtn').hidden = empty;
   $('sendBtn').textContent = `Trimite comanda · ${money(cartTotal)} ${currency}`;
-  $('sendBtn').disabled = busy;
+  $('sendBtn').disabled = busy || blocked > 0;
+  $('blockedNote').hidden = !blocked;
 
   // Sent (open orders on the server)
   const sent = $('sentLines');
@@ -289,7 +306,10 @@ $('sendBtn').onclick = async () => {
     Cart.clear();
     toast('Comanda a fost trimisă. Mulțumim!');
   } catch (e) {
-    if (e.status === 409) await loadMenu();
+    if (e.status === 409) {
+      await loadMenu();
+      if (e.data && 'stock' in e.data) server.stock = e.data.stock;
+    }
     toast(e.message, true);
   } finally {
     busy = false; render();
