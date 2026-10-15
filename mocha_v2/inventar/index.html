@@ -82,7 +82,7 @@
   .tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 9px; background: var(--soft); border: 1px solid var(--line); color: var(--muted); vertical-align: 1px; }
   .tag.ingr { background: #eef1fb; border-color: #d5dcf3; color: #3949ab; }
 
-  .srow { display: grid; grid-template-columns: minmax(150px, 1fr) 44px 84px 76px 80px 96px 226px; gap: 8px; align-items: center; padding: 7px 2px; border-bottom: 1px dashed var(--line); }
+  .srow { display: grid; grid-template-columns: minmax(150px, 1fr) 44px 84px 76px 80px 70px 96px 226px; gap: 8px; align-items: center; padding: 7px 2px; border-bottom: 1px dashed var(--line); }
   .srow:last-child { border-bottom: 0; }
   .srow.head { font-size: 12px; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--line); padding-top: 6px; }
   .srow.off .nm, .srow.off .qty, .srow.off .last { opacity: .5; }
@@ -121,6 +121,14 @@
   .k.count { background: #eef1fb; border-color: #d5dcf3; color: #3949ab; }
   .k.sale { background: #fff4e5; border-color: #f5dfbd; color: var(--warn); }
   .plus { color: var(--ok); }
+  .plink { margin-right: 8px; white-space: nowrap; color: var(--accent); }
+  .arch { display: grid; gap: 10px; margin-bottom: 14px; }
+  .arch h3 { margin: 0; font-size: 15px; }
+  .arch .hint { margin: 0; }
+  .period { display: grid; grid-template-columns: repeat(2, minmax(0, 200px)); gap: 10px; }
+  .arc-info { margin: 0; font-size: 13px; }
+  .arc-info b { font-weight: 600; }
+  .camrow .btn.on { border-color: var(--brand); color: var(--brand); font-weight: 600; }
   .minus { color: var(--danger); }
   .wide { overflow-x: auto; }
 
@@ -137,14 +145,41 @@
   .seg button { border: 0; background: #fff; padding: 7px 16px; cursor: pointer; }
   .seg button + button { border-left: 1px solid var(--line); }
   .seg button[aria-pressed="true"] { background: var(--brand); color: #fff; }
-  .rline { display: grid; grid-template-columns: 1fr 110px 56px 32px; gap: 6px; align-items: center; }
-  .rline .u { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
-  .rlines { display: grid; gap: 6px; }
+  .rlines { display: grid; gap: 8px; }
+  .rcard { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; display: grid; gap: 6px; background: #fff; }
+  .rcard.off { background: var(--soft); }
+  .rcard.off .rnums, .rcard.off .rtop input:not([type=checkbox]) { opacity: .5; }
+  .rcard.bad { border-color: #f0c9a8; background: #fffaf3; }
+  .rtop { display: flex; gap: 8px; align-items: center; }
+  .rtop input[type=checkbox] { width: 20px; height: 20px; flex: none; accent-color: var(--brand); }
+  .rnums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .rnums input { padding: 6px 8px; }
+  .rnums label { display: flex; flex-direction: column; justify-content: flex-end; }
+  .rinfo { margin: 0; font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+  .rinfo b { color: var(--text); }
+  .rnew { display: grid; grid-template-columns: 1fr 90px auto; gap: 6px; align-items: center; }
+  .rnew .hint { grid-column: 1 / -1; margin: 0; }
+  .src { margin: 0; font-size: 11.5px; color: var(--muted); font-family: ui-monospace, Menlo, monospace; overflow-wrap: anywhere; }
+  .badge { display: inline-block; font-size: 11.5px; padding: 1px 7px; border-radius: 9px; border: 1px solid var(--line); }
+  .badge.ok { background: #e8f3e9; border-color: #cfe5d1; color: var(--ok); }
+  .badge.warn { background: #fff4e5; border-color: #f5dfbd; color: var(--warn); }
+  .grid3 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 10px; }
+  .camrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .rtotal { margin: 0 0 0 auto; font-weight: 600; }
+  .thumbs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .thumbs:empty, .ocr-status:empty { display: none; }
+  .thumb { position: relative; width: 72px; height: 96px; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); background: var(--soft); cursor: pointer; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .thumb .st { position: absolute; left: 0; right: 0; bottom: 0; font-size: 10.5px; text-align: center; background: rgba(0,0,0,.6); color: #fff; padding: 2px; }
+  .thumb .x { position: absolute; top: 3px; right: 3px; width: 22px; height: 22px; border-radius: 50%; border: 0; background: rgba(255,255,255,.92); color: var(--danger); cursor: pointer; line-height: 1; padding: 0; }
+  .photo-view img { width: 100%; border-radius: 8px; border: 1px solid var(--line); }
+  .photo-view .hint { margin: 4px 0 0; }
+  .ocr-status { margin: 0; font-weight: 600; color: var(--text); }
 
   .toast { position: fixed; left: 50%; bottom: 20px; translate: -50% 0; background: #222; color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13px; z-index: 80; max-width: calc(100vw - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
   .toast.err { background: var(--danger); }
 
-  @media (max-width: 860px) {
+  @media (max-width: 940px) {
     header.top { position: static; }
     .srow { grid-template-columns: 1fr 1fr; gap: 6px 10px; padding: 10px 2px; }
     .srow.head { display: none; }
@@ -154,8 +189,11 @@
     .lbl { display: block; font-size: 11px; color: var(--muted); font-weight: 400; }
     .swl { display: inline; }
     .grid2 { grid-template-columns: 1fr; }
-    .rline { grid-template-columns: 1fr 84px 32px; }
-    .rline .u { display: none; }
+    .grid3 { grid-template-columns: 1fr 1fr; }
+    .grid3 > :first-child { grid-column: 1 / -1; }
+    .rnew { grid-template-columns: 1fr 80px; }
+    .rnew .btn { grid-column: 1 / -1; }
+    .period { grid-template-columns: 1fr 1fr; }
     .toolbar select { flex: 1 1 100%; }
     .cat-head { flex-wrap: wrap; }
     .count { flex-basis: 100%; text-align: left; padding-left: 38px; }
@@ -184,6 +222,7 @@
     </div>
     <nav class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="stock">Stocuri</button>
+      <button role="tab" aria-selected="false" data-tab="receipts">Recepții</button>
       <button role="tab" aria-selected="false" data-tab="moves">Mișcări</button>
     </nav>
   </header>
@@ -192,7 +231,8 @@
     <section id="tab-stock">
       <div class="kpis" id="kpis"></div>
       <div class="toolbar">
-        <button class="btn primary" id="receiveBtn">+ Recepție marfă</button>
+        <button class="btn primary" id="scanBtn">📷 Scanează factura</button>
+        <button class="btn" id="receiveBtn">+ Recepție manuală</button>
         <button class="btn" id="addItemBtn">+ Articol nou</button>
         <button class="btn" id="csvBtn">Descarcă CSV</button>
       </div>
@@ -211,6 +251,25 @@
       </div>
       <p class="hint">Produsele din meniu apar aici automat. Activează <b>Urmărit</b> la cele care se vând așa cum se cumpără (băuturi la sticlă, bere): la fiecare plată a unei comenzi online, stocul lor scade singur. Pentru cafele, cocktailuri și fresh-uri urmărește ingredientele, adăugate cu <b>+ Articol nou</b>.</p>
       <div id="groups"></div>
+    </section>
+
+    <section id="tab-receipts" hidden>
+      <div class="panel arch">
+        <h3>Arhivă facturi fotografiate</h3>
+        <p class="hint">Descarcă într-un singur fișier .zip pozele facturilor dintr-o perioadă (după data facturii), cu un tabel <b>facturi.csv</b> (furnizor, număr, dată, valoare) — de exemplu pentru contabilitate.</p>
+        <div class="period">
+          <label class="f"><span>De la</span><input type="date" id="arcFrom"></label>
+          <label class="f"><span>Până la</span><input type="date" id="arcTo"></label>
+        </div>
+        <div class="camrow" id="arcPresets"></div>
+        <p class="arc-info" id="arcInfo"></p>
+        <div class="camrow"><button class="btn primary" id="arcZip" disabled>📦 Descarcă arhiva (.zip)</button></div>
+      </div>
+      <div class="toolbar">
+        <input type="search" id="receiptSearch" placeholder="Caută furnizor, nr. factură sau notă…">
+      </div>
+      <p class="hint">Facturile intrate, cele mai noi primele. Pozele se deschid doar după autentificare.</p>
+      <div class="panel wide" id="receiptsBox"></div>
     </section>
 
     <section id="tab-moves" hidden>
@@ -244,6 +303,7 @@
 <datalist id="groupsList"></datalist>
 <datalist id="itemsList"></datalist>
 
+<script src="ocr.js"></script>
 <script>
 const API = 'api.php';
 const KINDS = { in: 'Intrare', out: 'Ieșire', count: 'Inventar', sale: 'Vânzare' };
@@ -254,6 +314,9 @@ const open = new Set();     // group keys shown expanded
 let savedOpen = null;       // expanded groups before a search / filter, restored afterwards
 let defaultsSet = false;
 let moves = [];
+let aliases = [];       // invoice wording learned from earlier receipts
+let modalGuard = null;  // asked before the dialog closes without saving
+let modalCleanup = null;
 const $ = id => document.getElementById(id);
 
 /* ---------- helpers ---------- */
@@ -275,12 +338,13 @@ function toast(text, err) {
   setTimeout(() => t.remove(), err ? 5000 : 2200);
 }
 async function api(action, body) {
+  const form = body instanceof FormData;
   const r = await fetch(API + '?action=' + action, {
     method: body ? 'POST' : 'GET',
     credentials: 'same-origin',
     cache: 'no-store',
-    headers: { ...(csrf ? { 'X-CSRF-Token': csrf } : {}), ...(body ? { 'Content-Type': 'application/json' } : {}) },
-    body: body ? JSON.stringify(body) : undefined,
+    headers: { ...(csrf ? { 'X-CSRF-Token': csrf } : {}), ...(body && !form ? { 'Content-Type': 'application/json' } : {}) },
+    body: body ? (form ? body : JSON.stringify(body)) : undefined,
   });
   let d;
   try { d = await r.json(); } catch { throw new Error('Răspuns invalid de la server (' + r.status + ').'); }
@@ -322,16 +386,23 @@ function showModal(title, body, big = false) {
   $('sheet').classList.toggle('big', big);
   $('modal').hidden = false;
 }
-function closeModal() { $('modal').hidden = true; $('modalBody').replaceChildren(); }
+function closeModal(force = false) {
+  if (!force && modalGuard && !modalGuard()) return;
+  $('modal').hidden = true;
+  $('modalBody').replaceChildren();
+  const cleanup = modalCleanup;
+  modalGuard = modalCleanup = null;
+  if (cleanup) cleanup();
+}
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('modal').hidden) closeModal(); });
 const field = (text, input) => h('label', { class: 'f' }, h('span', {}, text), input);
-const cancelBtn = () => h('button', { type: 'button', class: 'btn', onclick: closeModal }, 'Renunță');
+const cancelBtn = () => h('button', { type: 'button', class: 'btn', onclick: () => closeModal() }, 'Renunță');
 
 /* ---------- auth ---------- */
 function showLogin() {
   $('login').hidden = false;
   $('app').hidden = true;
-  closeModal();
+  closeModal(true);
   $('password').focus();
 }
 $('loginForm').addEventListener('submit', async e => {
@@ -359,6 +430,7 @@ $('logoutBtn').onclick = async () => {
 async function load() {
   const d = await api('list');
   items = d.items;
+  aliases = d.aliases || [];
   byId.clear();
   for (const it of items) byId.set(it.id, it);
   if (!defaultsSet) {
@@ -438,7 +510,7 @@ function groupCard(g) {
   if (isOpen) {
     const body = h('div', { class: 'cat-body' },
       h('div', { class: 'srow head' }, h('span', {}, 'Articol'), h('span', {}, 'Urmărit'), h('span', { class: 'qty' }, 'Stoc'),
-        h('span', {}, 'Unitate'), h('span', {}, 'Stoc minim'), h('span', {}, 'Ultima intrare'), h('span')));
+        h('span', {}, 'Unitate'), h('span', {}, 'Stoc minim'), h('span', { title: 'Câte unități are un bax / cutie / pachet' }, 'Bax/cutie'), h('span', {}, 'Ultima intrare'), h('span')));
     for (const it of g.items) body.append(row(it));
     card.append(body);
   }
@@ -459,6 +531,8 @@ function row(it) {
       it.tracked && it.reserved > 0 ? h('div', { class: 'res', title: 'Comandate de clienți și încă neplătite; se scad din stoc la plată' }, `${fmt(it.reserved)} în comenzi`) : null),
     cell('Unitate', h('input', { value: it.unit, list: 'units', maxlength: '12', 'aria-label': 'Unitate', disabled: it.archived, onchange: e => saveItem(it, { unit: e.target.value }) })),
     cell('Stoc minim', h('input', { value: it.min ? plain(it.min) : '', inputmode: 'decimal', placeholder: '0', 'aria-label': 'Stoc minim', disabled: it.archived, onchange: e => saveItem(it, { min: e.target.value }) })),
+    cell('1 bax/cutie =', h('input', { value: it.pack ? plain(it.pack) : '', inputmode: 'decimal', placeholder: '—', 'aria-label': 'Unități într-un bax sau cutie',
+      title: 'Câte ' + it.unit + ' are un bax / cutie / pachet. Se completează și singur din recepții.', disabled: it.archived, onchange: e => saveItem(it, { pack: e.target.value }) })),
     cell('Ultima intrare', h('div', { class: 'last' }, it.last_in ? `${dt(it.last_in.at).slice(0, 5)} (+${fmt(it.last_in.qty)})` : '—')),
     acts);
 }
@@ -472,16 +546,17 @@ function refreshRow(it) {
     q.className = 'qty ' + level(it);
     q.textContent = it.tracked ? fmt(it.qty) : '—';
     r.querySelector('.switch input').checked = it.tracked;
-    const [u, m] = r.querySelectorAll('input:not([type=checkbox])');
+    const [u, m, pk] = r.querySelectorAll('input:not([type=checkbox])');
     if (document.activeElement !== u) u.value = it.unit;
     if (document.activeElement !== m) m.value = it.min ? plain(it.min) : '';
+    if (document.activeElement !== pk) pk.value = it.pack ? plain(it.pack) : '';
   }
   renderKpis();
   for (const g of groupsOf(visible())) document.querySelector(`.cat[data-key="${CSS.escape(g.key)}"] .count`)?.replaceChildren(...countText(g).filter(Boolean));
 }
 
 async function saveItem(it, patch) {
-  const body = { id: it.id, name: it.name, grp: it.grp, unit: it.unit, min: it.min ? plain(it.min) : '', tracked: it.tracked, ...patch };
+  const body = { id: it.id, name: it.name, grp: it.grp, unit: it.unit, min: it.min ? plain(it.min) : '', pack: it.pack ? plain(it.pack) : '', tracked: it.tracked, ...patch };
   try {
     const d = await api('item_save', body);
     Object.assign(it, d.item, { last_in: it.last_in });
@@ -510,9 +585,9 @@ $('collapseAll').onclick = () => { open.clear(); render(); };
 
 $('csvBtn').onclick = () => {
   const n = m => String(m / 1000).replace('.', ',');
-  const rows = [['Grupă', 'Articol', 'Variantă', 'Tip', 'Urmărit', 'Stoc', 'Unitate', 'Stoc minim', 'Ultima intrare']];
+  const rows = [['Grupă', 'Articol', 'Variantă', 'Tip', 'Urmărit', 'Stoc', 'Unitate', 'Stoc minim', 'Bax/cutie', 'Ultima intrare']];
   for (const g of groupsOf(items.filter(i => !i.archived))) {
-    for (const i of g.items) rows.push([g.name, i.name, i.variant, i.product ? 'meniu' : 'ingredient', i.tracked ? 'da' : 'nu', i.tracked ? n(i.qty) : '', i.unit, n(i.min), i.last_in ? i.last_in.at : '']);
+    for (const i of g.items) rows.push([g.name, i.name, i.variant, i.product ? 'meniu' : 'ingredient', i.tracked ? 'da' : 'nu', i.tracked ? n(i.qty) : '', i.unit, n(i.min), i.pack ? n(i.pack) : '', i.last_in ? i.last_in.at : '']);
   }
   downloadCsv(`stoc-${today()}.csv`, rows);
 };
@@ -561,68 +636,283 @@ function moveDialog(it, kind = 'in') {
   qty.focus();
 }
 
-/* ---------- goods receipt with several lines (one invoice) ---------- */
-function receiveDialog() {
-  // Datalist labels must be unique: same-named products get their number appended.
-  const byText = new Map();
-  const seen = new Map();
+/* ---------- goods receipt: one invoice, typed in or read from photos ---------- */
+/** Unique labels for the article picker (same-named products get their number appended). */
+function itemChoices() {
+  const byText = new Map(), toText = new Map(), seen = new Map();
   const active = items.filter(i => !i.archived);
-  for (const i of active) { const t = `${full(i)} — ${i.product ? i.grp : 'ingredient'}`; seen.set(t, (seen.get(t) || 0) + 1); }
+  const base = i => `${full(i)} — ${i.product ? i.grp : 'ingredient'}`;
+  for (const i of active) seen.set(base(i), (seen.get(base(i)) || 0) + 1);
   for (const i of active) {
-    let t = `${full(i)} — ${i.product ? i.grp : 'ingredient'}`;
-    if (seen.get(t) > 1) t += ` #${i.id}`;
+    const t = base(i) + (seen.get(base(i)) > 1 ? ` #${i.id}` : '');
     byText.set(t, i.id);
+    toText.set(i.id, t);
   }
   $('itemsList').replaceChildren(...[...byText.keys()].map(t => h('option', { value: t })));
+  return { byText, toText };
+}
+/** Unit price in lei ("2,1008") -> number; null when not a price. */
+const parsePrice = s => {
+  const v = String(s ?? '').replace(/\s/g, '').replace(',', '.');
+  return /^\d{1,7}(\.\d{1,4})?$/.test(v) ? Number(v) : null;
+};
+const lei = bani => (bani / 100).toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const badge = (cls, text) => h('span', { class: 'badge ' + cls }, text);
 
-  const doc = h('input', { maxlength: '60', placeholder: 'ex. Factura 1234 / Furnizor' });
+function receiptDialog({ camera = false } = {}) {
+  let choices = itemChoices();
+  const pages = [];     // { file, url, archive: Promise<Blob>, state }
+  const all = [];       // line models
+  let queue = Promise.resolve();
+  let viewing = null;
+
+  const supplier = h('input', { maxlength: '80', placeholder: 'ex. Coca-Cola HBC România' });
+  const docNo = h('input', { maxlength: '40', placeholder: 'ex. CCH 123456' });
+  const docDate = h('input', { type: 'date' });
   const note = h('input', { maxlength: '200' });
+  const thumbs = h('div', { class: 'thumbs' });
+  const view = h('div', { class: 'photo-view', hidden: true });
+  const status = h('p', { class: 'hint ocr-status', 'aria-live': 'polite' });
   const lines = h('div', { class: 'rlines' });
-  const addLine = () => {
-    const art = h('input', { list: 'itemsList', placeholder: 'Caută articolul…', 'aria-label': 'Articol', autocomplete: 'off' });
-    const q = h('input', { inputmode: 'decimal', placeholder: 'Cantitate', 'aria-label': 'Cantitate', autocomplete: 'off' });
-    const u = h('span', { class: 'u' });
-    art.oninput = () => { const id = byText.get(art.value); u.textContent = id ? byId.get(id).unit : ''; };
-    // Enter on the quantity goes to a new line instead of saving half an invoice.
-    q.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); (line.nextSibling ? line.nextSibling.querySelector('input') : addLine()).focus(); } };
-    const line = h('div', { class: 'rline' }, art, q, u,
-      h('button', { type: 'button', class: 'btn icon ghost', title: 'Șterge rândul', 'aria-label': 'Șterge rândul', onclick: () => { line.remove(); if (!lines.children.length) addLine(); } }, '×'));
-    lines.append(line);
-    return art;
+  const total = h('p', { class: 'rtotal' });
+  const cam = h('input', { type: 'file', accept: 'image/*', capture: 'environment', hidden: true });
+  const gallery = h('input', { type: 'file', accept: 'image/*', multiple: true, hidden: true });
+
+  /* pages */
+  const paintThumbs = () => {
+    thumbs.replaceChildren(...pages.map((p, i) => h('div', { class: 'thumb', title: 'Pagina ' + (i + 1), onclick: () => { viewing = viewing === p ? null : p; paintView(); } },
+      h('img', { src: p.url, alt: 'Pagina ' + (i + 1) }),
+      h('span', { class: 'st' }, { busy: 'citesc…', done: '✓ citită', error: '⚠ eroare' }[p.state] || 'în așteptare'),
+      h('button', { type: 'button', class: 'x', title: 'Scoate pagina', 'aria-label': 'Scoate pagina ' + (i + 1), onclick: e => {
+        e.stopPropagation();
+        pages.splice(pages.indexOf(p), 1);
+        URL.revokeObjectURL(p.url);
+        if (viewing === p) viewing = null;
+        paintThumbs(); paintView();
+      } }, '×'))));
   };
-  for (let i = 0; i < 3; i++) addLine();
+  const paintView = () => {
+    view.hidden = !viewing;
+    view.replaceChildren(...(viewing ? [h('img', { src: viewing.url, alt: 'Factura' }), h('p', { class: 'hint' }, 'Atinge din nou miniatura ca să ascunzi poza.')] : []));
+  };
+  const readOne = async p => {
+    if (!pages.includes(p)) return;
+    const n = pages.indexOf(p) + 1;
+    p.state = 'busy';
+    paintThumbs();
+    try {
+      const page = await InvoiceOCR.readPage(p.file, m => {
+        if (m.status === 'recognizing text') status.textContent = `Citesc pagina ${n}… ${Math.round(m.progress * 100)}%`;
+        else if (/core|traineddata|initializ/.test(m.status)) status.textContent = 'Pregătesc cititorul de facturi (prima dată se descarcă aproximativ 6 MB)…';
+      });
+      const { header, lines: found } = InvoiceOCR.analyse([page]);
+      if (!supplier.value && header.supplier) supplier.value = header.supplier;
+      if (!docNo.value && header.doc_no) docNo.value = header.doc_no;
+      if (!docDate.value && header.doc_date) docDate.value = header.doc_date;
+      for (const m of [...all]) if (m.empty()) m.remove();
+      for (const l of found) addLine(fromOcr(l));
+      p.state = 'done';
+      status.textContent = found.length
+        ? `Pagina ${n}: am găsit ${found.length} ${found.length === 1 ? 'rând' : 'rânduri'}. Verifică fiecare rând înainte să salvezi.`
+        : `Pagina ${n}: nu am găsit rânduri cu produse. Fă o poză mai clară, dreaptă, cu tot tabelul în cadru, sau completează rândurile manual.`;
+    } catch (err) {
+      p.state = 'error';
+      status.textContent = `Nu am putut citi pagina ${n}: ${err.message}`;
+    }
+    paintThumbs();
+    paintTotal();
+  };
+  const addPhotos = files => {
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) continue;
+      if (pages.length >= 8) { toast('Cel mult 8 pagini pe o recepție.', true); break; }
+      const p = { file, url: URL.createObjectURL(file), archive: InvoiceOCR.archiveCopy(file).catch(() => null), state: '' };
+      pages.push(p);
+      queue = queue.then(() => readOne(p));
+    }
+    paintThumbs();
+  };
+  cam.onchange = () => { addPhotos([...cam.files]); cam.value = ''; };
+  gallery.onchange = () => { addPhotos([...gallery.files]); gallery.value = ''; };
+
+  /* lines */
+  const fromOcr = l => {
+    const m = InvoiceOCR.match(l.name, l.unit, items.filter(i => !i.archived), aliases);
+    const it = m && byId.get(m.item);
+    // Learned wording keeps its own conversion; otherwise convert from the invoice unit to the article's unit.
+    const conv = !it ? { factor: null, source: null } : m.how === 'learned' ? { factor: m.factor, source: 'learned' } : InvoiceOCR.convert(l, it);
+    return {
+      item: it ? it.id : null, how: it ? m.how : null, conv,
+      inv: String(+l.qty.toFixed(3)).replace('.', ','), factor: conv.factor != null ? plain(conv.factor) : '',
+      price: l.price ? (([i, f = '']) => i + ',' + f.padEnd(2, '0'))(String(+l.price.toFixed(4)).split('.')) : '',
+      unit: l.unit, src: l.name, text: l.text, include: !l.ignore, ignored: l.ignore, checked: l.checked,
+    };
+  };
+  function addLine(init = {}) {
+    const L = { item: null, how: null, inv: '', factor: '1', price: '', unit: '', src: '', text: '', include: true, ignored: false, checked: true, conv: { factor: 1000, source: 'same' }, facEdited: false, ...init };
+    const inc = h('input', { type: 'checkbox', checked: L.include, 'aria-label': 'Include rândul în recepție' });
+    const art = h('input', { list: 'itemsList', placeholder: 'Caută articolul…', 'aria-label': 'Articol', autocomplete: 'off', value: L.item ? choices.toText.get(L.item) || '' : '' });
+    const inv = h('input', { inputmode: 'decimal', placeholder: '0', autocomplete: 'off', value: L.inv });
+    const fac = h('input', { inputmode: 'decimal', autocomplete: 'off', value: L.factor });
+    const price = h('input', { inputmode: 'decimal', placeholder: 'opțional', autocomplete: 'off', value: L.price });
+    const info = h('p', { class: 'rinfo' });
+    const extra = h('div', { class: 'rextra' });
+    const unitTxt = L.unit ? L.unit.toUpperCase() : '';
+    const card = h('div', { class: 'rcard' },
+      h('div', { class: 'rtop' }, inc, art,
+        h('button', { type: 'button', class: 'btn icon ghost', title: 'Șterge rândul', 'aria-label': 'Șterge rândul', onclick: () => { L.remove(); if (!all.length) addLine(); paintTotal(); } }, '×')),
+      h('div', { class: 'rnums' },
+        field('Cantitate' + (unitTxt ? ` (${unitTxt})` : ''), inv),
+        field('Conversie', fac),
+        field('Preț fără TVA', price)),
+      info, extra);
+    L.remove = () => { card.remove(); all.splice(all.indexOf(L), 1); };
+    L.empty = () => !art.value.trim() && !inv.value.trim() && !price.value.trim() && !L.src;
+    L.sync = () => {
+      L.include = inc.checked;
+      L.item = choices.byText.get(art.value) ?? null;
+      const it = L.item && byId.get(L.item);
+      const q = parseQty(inv.value), f = parseQty(fac.value), p = parsePrice(price.value);
+      L.qty = q != null && f != null ? Math.round(q * f / 1000) : null;
+      L.fac = f;
+      L.cost = q != null && p != null ? Math.round(q / 1000 * p * 100) : null;
+      L.priceBad = price.value.trim() !== '' && p == null;
+      card.classList.toggle('off', !L.include);
+      card.classList.toggle('bad', L.include && !it && !L.empty());
+      const bits = [];
+      if (!L.include) bits.push(L.ignored ? 'Ignorat (garanție SGR, transport sau discount). Bifează dacă vrei să intre în stoc.' : 'Rândul nu intră în recepție.');
+      else if (!it) bits.push(badge('warn', L.empty() ? 'Alege articolul' : 'Alege articolul din listă sau creează unul nou'));
+      else {
+        bits.push(h('span', {}, '→ intră ', h('b', {}, L.qty != null ? `${fmt(L.qty)} ${it.unit}` : '?')));
+        if (L.cost != null) bits.push(h('span', {}, `valoare ${lei(L.cost)} lei`));
+        if (f != null && f !== 1000) bits.push(h('span', {}, `1 ${unitTxt || 'unitate'} = ${fmt(f)} ${it.unit}`));
+        if (L.how === 'learned') bits.push(badge('ok', 'recunoscut din recepțiile anterioare'));
+        if (L.how === 'guess') bits.push(badge('warn', 'potrivire aproximativă — verifică articolul'));
+        if (f == null) bits.push(badge('warn', `completează conversia: câte ${it.unit} are 1 ${unitTxt || 'unitate de pe factură'}?`));
+        else if (!L.facEdited) {
+          const label = { item: ['ok', 'conversie din inventar (bax/cutie)'], text: ['ok', 'conversie din denumirea de pe factură'],
+            size: ['ok', 'conversie după gramaj'], typical: ['warn', 'conversie estimată după ambalaj — verifică'] }[L.conv?.source];
+          if (label) bits.push(badge(...label));
+        }
+        if (!L.checked) bits.push(badge('warn', 'verifică cantitatea și prețul'));
+      }
+      if (L.priceBad) bits.push(badge('warn', 'preț invalid'));
+      info.replaceChildren(...bits);
+      paintTotal();
+    };
+    // Invoice wording + quick creation of a missing article.
+    const paintExtra = () => {
+      const kids = [];
+      if (L.text) kids.push(h('p', { class: 'src' }, 'Pe factură: ' + L.text));
+      if (L.include && !L.item && (L.src || art.value.trim())) {
+        const name = h('input', { maxlength: '80', value: L.src || art.value.trim(), 'aria-label': 'Numele articolului nou' });
+        const unit = h('input', { maxlength: '12', list: 'units', value: ['kg', 'g', 'l', 'ml'].includes(L.unit) ? L.unit : 'buc', 'aria-label': 'Unitatea articolului nou' });
+        const create = h('button', { type: 'button', class: 'btn', onclick: async () => {
+          create.disabled = true;
+          try {
+            const d = await api('item_save', { id: 0, name: name.value, grp: 'Ingrediente', unit: unit.value, min: '', tracked: true });
+            await load();
+            choices = itemChoices();
+            art.value = choices.toText.get(d.item.id) || '';
+            L.how = 'manual';
+            L.sync(); L.reconv();
+            paintExtra(); L.sync();
+            toast('Articol creat: ' + d.item.name);
+          } catch (err) { toast(err.message, true); create.disabled = false; }
+        } }, 'Creează');
+        kids.push(h('div', { class: 'rnew' }, h('span', { class: 'hint' }, 'Nu există în inventar? Creează-l:'), name, unit, create));
+      }
+      extra.replaceChildren(...kids);
+    };
+    /** Another article chosen for an invoice line: convert again for it (unless the admin typed the conversion). */
+    L.reconv = () => {
+      const it = L.item && byId.get(L.item);
+      if (!it || L.facEdited || (!L.src && !L.unit)) return;
+      L.conv = InvoiceOCR.convert({ name: L.src, unit: L.unit }, it);
+      fac.value = L.conv.factor != null ? plain(L.conv.factor) : '';
+    };
+    art.oninput = () => { L.how = 'manual'; L.sync(); L.reconv(); L.sync(); paintExtra(); };
+    fac.oninput = () => { L.facEdited = true; L.sync(); };
+    inc.onchange = () => { L.sync(); paintExtra(); };
+    inv.oninput = price.oninput = L.sync;
+    // Enter on the price goes to the next line (or a new one) instead of saving half an invoice.
+    for (const el of [inv, fac, price]) el.onkeydown = e => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const next = all[all.indexOf(L) + 1];
+      (next ? next.focus() : addLine().focus());
+    };
+    L.focus = () => art.focus();
+    L.focusFac = () => fac.focus();
+    all.push(L);
+    lines.append(card);
+    L.sync();
+    paintExtra();
+    return L;
+  }
+  const paintTotal = () => {
+    const inc = all.filter(l => l.include && !l.empty());
+    const sum = inc.reduce((a, l) => a + (l.cost || 0), 0);
+    total.textContent = inc.length ? `${inc.length} ${inc.length === 1 ? 'rând' : 'rânduri'}${sum ? ` · total ${lei(sum)} lei fără TVA` : ''}` : '';
+  };
+
+  /* save */
   const save = h('button', { class: 'btn primary', type: 'submit' }, 'Salvează recepția');
   const form = h('form', { onsubmit: async e => {
     e.preventDefault();
+    if (pages.some(p => p.state === 'busy' || p.state === '')) { toast('Așteaptă să termin de citit paginile.', true); return; }
     const out = [];
-    let n = 0;
-    for (const line of lines.children) {
-      n++;
-      const [art, q] = line.querySelectorAll('input');
-      if (!art.value.trim() && !q.value.trim()) continue;
-      const id = byText.get(art.value);
-      if (!id) { toast(`Rândul ${n}: alege articolul din listă.`, true); art.focus(); return; }
-      if (!(parseQty(q.value) > 0)) { toast(`Rândul ${n}: scrie cantitatea (ex. 12 sau 3,5).`, true); q.focus(); return; }
-      out.push({ item: id, qty: q.value });
+    for (const [n, L] of all.entries()) {
+      L.sync();
+      if (!L.include || L.empty()) continue;
+      const where = `Rândul ${n + 1}`;
+      if (!L.item) { toast(`${where}: alege articolul din listă (sau debifează rândul).`, true); L.focus(); return; }
+      if (L.fac == null) {
+        const it = byId.get(L.item);
+        toast(`${where}: completează conversia — câte ${it.unit} are 1 ${L.unit ? L.unit.toUpperCase() : 'unitate de pe factură'}.`, true);
+        L.focusFac(); return;
+      }
+      if (!(L.qty > 0)) { toast(`${where}: verifică cantitatea și conversia (numere cu cel mult 3 zecimale).`, true); L.focus(); return; }
+      if (L.priceBad) { toast(`${where}: prețul nu este un număr valid.`, true); L.focus(); return; }
+      out.push({ item: L.item, qty: plain(L.qty), cost: L.cost != null ? (L.cost / 100).toFixed(2) : '', src: L.src ? InvoiceOCR.aliasText(L.src, L.unit) : '', factor: L.src ? plain(L.fac) : '',
+        pack: L.unit && InvoiceOCR.isPack(L.unit) ? plain(L.fac) : '' });
     }
     if (!out.length) { toast('Adaugă cel puțin un articol.', true); return; }
     save.disabled = true;
     try {
-      const d = await api('receive', { doc: doc.value, note: note.value, lines: out });
-      closeModal();
-      toast(`Recepție salvată: ${d.lines} ${d.lines === 1 ? 'articol' : 'articole'}`);
+      const payload = { supplier: supplier.value, doc_no: docNo.value, doc_date: docDate.value, note: note.value, lines: out };
+      let body = payload;
+      if (pages.length) {
+        body = new FormData();
+        body.append('data', JSON.stringify(payload));
+        for (const [i, p] of pages.entries()) body.append('photos[]', (await p.archive) || p.file, `pagina-${i + 1}.jpg`);
+      }
+      const d = await api('receive', body);
+      closeModal(true);
+      toast(`Recepție salvată: ${d.lines} ${d.lines === 1 ? 'articol' : 'articole'}${d.photos ? `, ${d.photos} ${d.photos === 1 ? 'poză' : 'poze'}` : ''}`);
       await load();
     } catch (err) { toast(err.message, true); save.disabled = false; }
   } },
-    h('div', { class: 'grid2' }, field('Document (nr. factură / aviz)', doc), field('Notă – opțional', note)),
-    h('p', { class: 'hint' }, 'Scrie câteva litere din nume și alege articolul din listă. Enter pe cantitate trece la rândul următor.'),
+    h('div', { class: 'grid3' }, field('Furnizor', supplier), field('Nr. factură', docNo), field('Data facturii', docDate)),
+    h('div', { class: 'camrow' },
+      h('button', { type: 'button', class: 'btn', onclick: () => cam.click() }, '📷 Fotografiază pagina'),
+      h('button', { type: 'button', class: 'btn', onclick: () => gallery.click() }, '🖼 Din galerie'),
+      cam, gallery),
+    thumbs, view, status,
+    h('p', { class: 'hint' }, 'Conversie = câte unități din inventar are o unitate de pe factură (ex. 1 BAX = 24 buc). Se completează singură când se poate; ce corectezi se ține minte, iar bax-ul rămâne salvat la articol.'),
     lines,
-    h('div', {}, h('button', { type: 'button', class: 'btn', onclick: () => addLine().focus() }, '+ Rând')),
+    h('div', { class: 'camrow' }, h('button', { type: 'button', class: 'btn', onclick: () => addLine().focus() }, '+ Rând'), total),
+    field('Notă – opțional', note),
     h('div', { class: 'sheet-actions' }, cancelBtn(), save));
-  showModal('Recepție marfă', form, true);
-  lines.querySelector('input').focus();
+
+  if (!camera) for (let i = 0; i < 3; i++) addLine();
+  showModal(camera ? 'Scanează factura' : 'Recepție marfă', form, true);
+  modalGuard = () => (!pages.length && all.every(l => l.empty())) || confirm('Renunți la recepție? Ce ai introdus nu se salvează.');
+  modalCleanup = () => { for (const p of pages) URL.revokeObjectURL(p.url); InvoiceOCR.stop(); };
+  if (camera) cam.click(); else all[0].focus();
 }
-$('receiveBtn').onclick = receiveDialog;
+$('scanBtn').onclick = () => receiptDialog({ camera: true });
+$('receiveBtn').onclick = () => receiptDialog();
 
 /* ---------- ingredients and consumables ---------- */
 function itemDialog(it) {
@@ -634,6 +924,7 @@ function itemDialog(it) {
   const unit = h('input', { maxlength: '12', list: 'units', value: it ? it.unit : 'kg' });
   const min = h('input', { inputmode: 'decimal', value: it && it.min ? plain(it.min) : '', placeholder: '0' });
   const initial = h('input', { inputmode: 'decimal', placeholder: 'gol = 0' });
+  const pack = h('input', { inputmode: 'decimal', value: it && it.pack ? plain(it.pack) : '', placeholder: 'ex. 24' });
   const acts = h('div', { class: 'sheet-actions' });
   if (it && !it.archived) {
     acts.append(h('button', { type: 'button', class: 'btn danger', onclick: async () => {
@@ -649,7 +940,7 @@ function itemDialog(it) {
     save.disabled = true;
     try {
       if (it && it.archived) await api('item_restore', { id: it.id });
-      else await api('item_save', { id: it ? it.id : 0, name: name.value, grp: grp.value, unit: unit.value, min: min.value, tracked: true, ...(isNew ? { initial: initial.value } : {}) });
+      else await api('item_save', { id: it ? it.id : 0, name: name.value, grp: grp.value, unit: unit.value, min: min.value, pack: pack.value, tracked: true, ...(isNew ? { initial: initial.value } : {}) });
       closeModal();
       toast(isNew ? 'Articol adăugat' : 'Salvat');
       if (isNew) open.add('i:' + (grp.value.trim() || 'Ingrediente'));
@@ -658,10 +949,11 @@ function itemDialog(it) {
   } },
     field('Nume', name),
     h('div', { class: 'grid2' }, field('Grupă', grp), field('Unitate de măsură', unit)),
-    h('div', { class: 'grid2' }, field('Stoc minim (avertizare)', min), isNew ? field('Stoc inițial – opțional', initial) : null),
+    h('div', { class: 'grid2' }, field('Stoc minim (avertizare)', min), field('Într-un bax/cutie – opțional', pack)),
+    isNew ? h('div', { class: 'grid2' }, field('Stoc inițial – opțional', initial)) : null,
     it && it.archived ? h('p', { class: 'hint' }, 'Articolul este arhivat. Restaurează-l ca să apară din nou în listă.') : null,
     acts);
-  if (it && it.archived) for (const i of [name, grp, unit, min]) i.disabled = true;
+  if (it && it.archived) for (const i of [name, grp, unit, min, pack]) i.disabled = true;
   showModal(isNew ? 'Articol nou' : full(it), form);
   (it && it.archived ? save : name).focus();
 }
@@ -679,14 +971,14 @@ function movesTable(list, withItem) {
       h('td', {}, h('span', { class: 'k ' + m.kind }, KINDS[m.kind] || m.kind)),
       h('td', { class: 'n ' + (m.qty > 0 ? 'plus' : m.qty < 0 ? 'minus' : '') }, `${signed(m.qty)} ${m.unit}`),
       h('td', { class: 'n' }, fmt(m.balance)),
-      h('td', {}, [m.doc, m.note].filter(Boolean).join(' · '))))));
+      h('td', {}, [m.doc, m.note, m.cost != null ? `${lei(m.cost)} lei` : ''].filter(Boolean).join(' · '))))));
 }
 async function historyDialog(it) {
   showModal('Istoric · ' + full(it), h('p', { class: 'hint' }, 'Se încarcă…'), true);
   try {
     const d = await api(`moves&item=${it.id}&limit=300`);
     $('modalBody').replaceChildren(h('div', { class: 'wide' }, movesTable(d.moves, false)),
-      h('div', { class: 'sheet-actions' }, h('button', { type: 'button', class: 'btn', onclick: closeModal }, 'Închide')));
+      h('div', { class: 'sheet-actions' }, h('button', { type: 'button', class: 'btn', onclick: () => closeModal() }, 'Închide')));
   } catch (err) { $('modalBody').replaceChildren(h('p', { class: 'msg' }, err.message)); }
 }
 async function loadMoves() {
@@ -705,12 +997,76 @@ $('movesCsv').onclick = () => {
     ...moves.map(m => [m.at, m.name, m.variant, KINDS[m.kind] || m.kind, n(m.qty), m.unit, n(m.balance), m.doc, m.note])]);
 };
 
+/* ---------- receipts (invoices) ---------- */
+async function loadReceipts() {
+  const box = $('receiptsBox');
+  box.replaceChildren(h('p', { class: 'hint' }, 'Se încarcă…'));
+  try {
+    const q = $('receiptSearch').value.trim();
+    const { receipts } = await api('receipts' + (q ? '&q=' + encodeURIComponent(q) : ''));
+    if (!receipts.length) { box.replaceChildren(h('p', { class: 'empty' }, q ? 'Nicio recepție găsită.' : 'Nicio recepție încă.')); return; }
+    const dmy = d => d ? `${d.slice(8, 10)}.${d.slice(5, 7)}.${d.slice(0, 4)}` : '';
+    box.replaceChildren(h('table', { class: 'st' },
+      h('thead', {}, h('tr', {}, h('th', {}, 'Recepție'), h('th', {}, 'Furnizor'), h('th', {}, 'Factura'), h('th', { class: 'n' }, 'Rânduri'),
+        h('th', { class: 'n' }, 'Valoare'), h('th', {}, 'Poze'), h('th'))),
+      h('tbody', {}, receipts.map(r => h('tr', {},
+        h('td', { class: 'd' }, dt(r.created_at)),
+        h('td', {}, r.supplier || '—'),
+        h('td', {}, [r.doc_no, dmy(r.doc_date)].filter(Boolean).join(' · ') || '—'),
+        h('td', { class: 'n' }, String(r.lines)),
+        h('td', { class: 'n' }, r.total != null ? `${lei(r.total)} lei` : '—'),
+        h('td', {}, r.photos ? Array.from({ length: r.photos }, (_, i) => h('a', { href: `${API}?action=receipt_photo&id=${r.id}&n=${i}`, target: '_blank', rel: 'noopener', class: 'plink' }, `pag. ${i + 1}`)) : '—'),
+        h('td', {}, h('button', { class: 'btn', onclick: () => receiptMoves(r) }, 'Rânduri')))))));
+  } catch (err) { box.replaceChildren(h('p', { class: 'msg' }, err.message)); }
+}
+async function receiptMoves(r) {
+  showModal(`Recepția din ${dt(r.created_at)}${r.supplier ? ' · ' + r.supplier : ''}`, h('p', { class: 'hint' }, 'Se încarcă…'), true);
+  try {
+    const d = await api(`moves&receipt=${r.id}&limit=300`);
+    $('modalBody').replaceChildren(h('div', { class: 'wide' }, movesTable(d.moves, true)),
+      h('div', { class: 'sheet-actions' }, h('button', { type: 'button', class: 'btn', onclick: () => closeModal() }, 'Închide')));
+  } catch (err) { $('modalBody').replaceChildren(h('p', { class: 'msg' }, err.message)); }
+}
+/* ---------- invoice photo archive (ZIP for a period) ---------- */
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const mb = b => (b / 1048576).toLocaleString('ro-RO', { maximumFractionDigits: b < 10485760 ? 1 : 0 }) + ' MB';
+function periodPresets() {
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+  return [['Luna aceasta', ymd(new Date(y, m, 1)), ymd(now)], ['Luna trecută', ymd(new Date(y, m - 1, 1)), ymd(new Date(y, m, 0))],
+    ['Anul acesta', ymd(new Date(y, 0, 1)), ymd(now)], ['Toate', '', '']];
+}
+const day = d => d ? `${d.slice(8, 10)}.${d.slice(5, 7)}.${d.slice(0, 4)}` : '';
+const arcQuery = () => `&from=${encodeURIComponent($('arcFrom').value)}&to=${encodeURIComponent($('arcTo').value)}`;
+async function arcInfo() {
+  for (const b of $('arcPresets').children) b.classList.toggle('on', b.dataset.from === $('arcFrom').value && b.dataset.to === $('arcTo').value);
+  $('arcZip').disabled = true;
+  try {
+    const d = await api('invoices_info' + arcQuery());
+    const p = d.period;
+    $('arcInfo').replaceChildren(p.photos
+      ? h('span', {}, h('b', {}, `${p.receipts} ${p.receipts === 1 ? 'factură' : 'facturi'} · ${p.photos} ${p.photos === 1 ? 'poză' : 'poze'} · ${mb(p.bytes)}`), ` (${p.first === p.last ? day(p.first) : day(p.first) + ' – ' + day(p.last)})`)
+      : 'Nicio factură fotografiată în perioada aleasă.',
+      h('br'), h('span', { class: 'hint' }, `Pe server în total: ${d.all.photos} ${d.all.photos === 1 ? 'poză' : 'poze'}, ${mb(d.all.bytes)}.`));
+    $('arcZip').disabled = !p.photos;
+  } catch (err) { $('arcInfo').textContent = err.message; }
+}
+$('arcPresets').replaceChildren(...periodPresets().map(([text, from, to]) => h('button', { class: 'btn', type: 'button', 'data-from': from, 'data-to': to,
+  onclick: () => { $('arcFrom').value = from; $('arcTo').value = to; arcInfo(); } }, text)));
+[$('arcFrom').value, $('arcTo').value] = periodPresets()[0].slice(1);
+$('arcFrom').onchange = $('arcTo').onchange = arcInfo;
+// A plain link: the browser saves the archive itself (no size limit from the page).
+$('arcZip').onclick = () => { location.href = `${API}?action=invoices_zip${arcQuery()}`; };
+
+let receiptTimer;
+$('receiptSearch').oninput = () => { clearTimeout(receiptTimer); receiptTimer = setTimeout(loadReceipts, 300); };
+
 /* ---------- tabs ---------- */
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
   document.querySelectorAll('.tabs button').forEach(x => x.setAttribute('aria-selected', String(x === b)));
-  $('tab-stock').hidden = b.dataset.tab !== 'stock';
-  $('tab-moves').hidden = b.dataset.tab !== 'moves';
-  if (b.dataset.tab === 'moves') loadMoves(); else load().catch(err => toast(err.message, true));
+  for (const t of ['stock', 'receipts', 'moves']) $('tab-' + t).hidden = b.dataset.tab !== t;
+  if (b.dataset.tab === 'moves') loadMoves();
+  else if (b.dataset.tab === 'receipts') { loadReceipts(); arcInfo(); }
+  else load().catch(err => toast(err.message, true));
 });
 // Sales happen on the waiters' phones meanwhile: refresh when coming back to this tab (unless a dialog is open).
 document.addEventListener('visibilitychange', () => {

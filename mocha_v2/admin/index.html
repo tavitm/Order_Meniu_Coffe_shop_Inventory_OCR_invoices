@@ -58,7 +58,8 @@
   .savebar { display: flex; align-items: center; gap: 10px; }
   .status { font-size: 12px; opacity: .85; }
   .status.dirty { color: #ffd27a; opacity: 1; }
-  .tabs { max-width: 980px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; }
+  .tabs { max-width: 980px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  .tabs button { flex: none; }
   .tabs button { border: 0; background: none; color: rgba(255,255,255,.75); padding: 8px 12px; border-bottom: 2px solid transparent; cursor: pointer; }
   .tabs button[aria-selected="true"] { color: #fff; border-color: #fff; }
 
@@ -162,6 +163,7 @@
     .side select { width: auto; flex: 1; }
     .cat-head { flex-wrap: wrap; }
     .grid2 { grid-template-columns: 1fr; }
+    .grid2.inv-period { grid-template-columns: 1fr 1fr; }
     .bk { grid-template-columns: 1fr; }
     .bk .acts { justify-content: flex-start; }
     header.top { position: static; }
@@ -200,6 +202,7 @@
       <button role="tab" aria-selected="false" data-tab="backup">Backup</button>
       <button role="tab" aria-selected="false" data-tab="sales">Încasări</button>
       <button role="tab" aria-selected="false" data-tab="waiters">Ospătari</button>
+      <button role="tab" aria-selected="false" data-tab="invoices">Facturi</button>
     </nav>
   </header>
 
@@ -326,6 +329,24 @@
         </div>
         <div id="shiftSummary"></div>
         <div id="shiftList"></div>
+      </div>
+    </section>
+
+    <section id="tab-invoices" hidden>
+      <div class="panel">
+        <h2>Facturi fotografiate</h2>
+        <p class="hint">Pozele facturilor scanate în <a href="../inventar/" target="_blank" rel="noopener">Inventar</a> stau pe server. Aici le descarci pe o perioadă (după data facturii), într-un .zip cu un tabel <b>facturi.csv</b>, și le poți șterge ca să eliberezi spațiu. Recepțiile, valorile și stocurile rămân neatinse: se șterg doar fișierele pozelor.</p>
+        <p id="invTotal"></p>
+        <div class="grid2 inv-period">
+          <label class="f"><span>De la</span><input type="date" id="invFrom"></label>
+          <label class="f"><span>Până la</span><input type="date" id="invTo"></label>
+        </div>
+        <div class="toolbar" id="invPresets"></div>
+        <p id="invInfo"></p>
+        <div class="toolbar">
+          <button class="btn primary" id="invZip" disabled>📦 Descarcă arhiva (.zip)</button>
+          <button class="btn danger" id="invDelete" disabled>Șterge pozele din perioadă</button>
+        </div>
       </div>
     </section>
   </main>
@@ -467,10 +488,57 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
   $('tab-backup').hidden = b.dataset.tab !== 'backup';
   $('tab-sales').hidden = b.dataset.tab !== 'sales';
   $('tab-waiters').hidden = b.dataset.tab !== 'waiters';
+  $('tab-invoices').hidden = b.dataset.tab !== 'invoices';
   if (b.dataset.tab === 'waiters') { loadWaiters(); loadShifts(); }
+  if (b.dataset.tab === 'invoices') loadInvoices();
   if (b.dataset.tab === 'backup') loadBackups();
   if (b.dataset.tab === 'sales') { loadSales(); loadReports(); }
 });
+
+/* ---------- photographed invoices: download for a period, delete to free space ---------- */
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const mb = b => (b / 1048576).toLocaleString('ro-RO', { maximumFractionDigits: b < 10485760 ? 1 : 0 }) + ' MB';
+const dmy = d => d ? `${d.slice(8, 10)}.${d.slice(5, 7)}.${d.slice(0, 4)}` : '';
+let invPeriod = null;
+function invPresets() {
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+  return [['Luna aceasta', ymd(new Date(y, m, 1)), ymd(now)], ['Luna trecută', ymd(new Date(y, m - 1, 1)), ymd(new Date(y, m, 0))],
+    ['Anul acesta', ymd(new Date(y, 0, 1)), ymd(now)], ['Mai vechi de 3 luni', '', ymd(new Date(y, m - 3, now.getDate()))], ['Toate', '', '']];
+}
+const invQuery = () => `&from=${encodeURIComponent($('invFrom').value)}&to=${encodeURIComponent($('invTo').value)}`;
+async function loadInvoices() {
+  for (const b of $('invPresets').children) b.classList.toggle('primary', b.dataset.from === $('invFrom').value && b.dataset.to === $('invTo').value);
+  $('invZip').disabled = $('invDelete').disabled = true;
+  try {
+    const d = await api('invoices_info' + invQuery());
+    const a = d.all, p = d.period;
+    $('invTotal').replaceChildren(a.photos
+      ? h('span', {}, 'Pe server: ', h('b', {}, `${a.photos} ${a.photos === 1 ? 'poză' : 'poze'} (${mb(a.bytes)})`), ` din ${a.receipts} ${a.receipts === 1 ? 'factură' : 'facturi'}, ${dmy(a.first)} – ${dmy(a.last)}.`)
+      : 'Pe server nu există poze de facturi.');
+    invPeriod = p;
+    $('invInfo').replaceChildren(p.photos
+      ? h('span', {}, 'În perioada aleasă: ', h('b', {}, `${p.receipts} ${p.receipts === 1 ? 'factură' : 'facturi'} · ${p.photos} ${p.photos === 1 ? 'poză' : 'poze'} · ${mb(p.bytes)}`))
+      : 'Nicio factură fotografiată în perioada aleasă.');
+    $('invZip').disabled = $('invDelete').disabled = !p.photos;
+  } catch (err) { $('invInfo').textContent = err.message; }
+}
+$('invPresets').replaceChildren(...invPresets().map(([text, from, to]) => h('button', { class: 'btn', type: 'button', 'data-from': from, 'data-to': to,
+  onclick: () => { $('invFrom').value = from; $('invTo').value = to; loadInvoices(); } }, text)));
+[$('invFrom').value, $('invTo').value] = invPresets()[1].slice(1);
+$('invFrom').onchange = $('invTo').onchange = loadInvoices;
+$('invZip').onclick = () => { location.href = `${API}?action=invoices_zip${invQuery()}`; };
+$('invDelete').onclick = async () => {
+  const p = invPeriod;
+  if (!p?.photos) return;
+  const range = $('invFrom').value || $('invTo').value ? `din perioada ${dmy($('invFrom').value) || 'început'} – ${dmy($('invTo').value) || 'azi'}` : 'de pe server (toate)';
+  if (!confirm(`Ștergi definitiv ${p.photos} ${p.photos === 1 ? 'poză' : 'poze'} (${mb(p.bytes)}) ale facturilor ${range}?\n\nRecepțiile, valorile și stocurile rămân, dar pozele nu se mai pot recupera. Dacă ai nevoie de ele, descarcă întâi arhiva.`)) return;
+  $('invDelete').disabled = true;
+  try {
+    const d = await api('invoices_delete', { body: JSON.stringify({ from: $('invFrom').value, to: $('invTo').value }), json: true });
+    toast(`Am șters ${d.files} ${d.files === 1 ? 'poză' : 'poze'} (${mb(d.bytes)}).`);
+  } catch (err) { toast(err.message, true); }
+  loadInvoices();
+};
 
 /* ---------- backup tab ---------- */
 const BK_TYPES = { menu: 'Automat la salvare', manual: 'Manual', restore: 'Înainte de restaurare' };

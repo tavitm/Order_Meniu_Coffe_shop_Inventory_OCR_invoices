@@ -72,7 +72,36 @@ INVENTAR (/inventar/)
   Comenzile anulate nu modifică stocul. Produsele neurmărite nu se modifică.
 - Ingredientele și consumabilele (cafea boabe, lapte, sticle de spirtoase, pahare) se
   adaugă cu „+ Articol nou”: nume, grupă, unitate de măsură, stoc minim, stoc inițial.
-- „+ Recepție marfă”: introduci o factură întreagă (nr. document + rânduri articol/cantitate).
+- „📷 Scanează factura” (de pe telefon): pornește camera, fotografiezi factura (poți adăuga
+  mai multe pagini) și telefonul o citește singur, fără internet extern și fără cost: completează
+  furnizorul, nr. și data facturii și rândurile (articol, cantitate, preț). Garanția SGR,
+  transportul și discounturile apar debifate. Verifici fiecare rând și apeși „Salvează recepția”.
+  Sfaturi pentru poză: factura întinsă pe masă, toată în cadru, lumină bună, telefonul drept
+  deasupra ei. Prima scanare descarcă o singură dată motorul de citire (aprox. 6 MB).
+- „Conversie” = câte unități din inventar are o unitate de pe factură (ex. 1 BAX = 24 buc).
+  Se completează singură, în ordinea: denumirea învățată de la recepțiile anterioare →
+  coloana „Bax/cutie” a articolului din inventar → numărul scris în denumire („set 50 buc”,
+  „24x0,25L”, „cutie 1000”) → gramajul, la articolele ținute în kg/l („Cafea 0,5kg” BUC = 0,5 kg)
+  → un bax obișnuit de băuturi (0,25–0,33 L = 24, 0,5 L = 12, mai mari = 6; marcat „estimat —
+  verifică”). Dacă nu se poate deduce, rubrica rămâne goală și recepția nu se salvează până
+  nu o completezi — un bax nu mai intră niciodată ca o singură bucată.
+- Coloana „Bax/cutie” din inventar (câte unități are un bax/cutie/pachet) se poate completa
+  de mână și se completează singură la prima recepție în baxuri; după aceea se aplică la
+  facturile de la orice furnizor.
+- Ce corectezi la o recepție (articolul ales, conversia) se ține minte: data viitoare aceeași
+  denumire de pe factură, în aceeași unitate, e recunoscută automat.
+- Un produs de pe factură care nu există în inventar se poate crea direct din rândul lui.
+- „+ Recepție manuală”: aceeași fereastră, completată de mână (pozele sunt opționale).
+- Tab-ul „Recepții”: toate facturile intrate (furnizor, nr., dată, valoare fără TVA), cu
+  căutare și cu pozele facturilor. Pozele stau în data/invoices/ (protejat) și se deschid
+  doar după autentificare.
+- Tot în „Recepții”: „Arhivă facturi fotografiate” — alegi perioada (după data facturii;
+  butoane rapide: luna aceasta, luna trecută, anul acesta, toate) și descarci un .zip cu
+  pozele, denumite dată_furnizor_număr, plus tabelul facturi.csv (furnizor, nr., dată,
+  valoare fără TVA) — de exemplu pentru contabilitate.
+- Admin → tab „Facturi”: aceeași descărcare, plus „Șterge pozele din perioadă” pentru a
+  elibera spațiu pe server (ex. „Mai vechi de 3 luni”). Se șterg doar fișierele pozelor;
+  recepțiile, valorile și stocurile rămân. Ștergerea nu se poate anula: descarcă întâi arhiva.
 - „Mișcare” pe un rând: Intrare, Ieșire (spart, expirat, consum intern, vânzare la bar)
   sau Inventar (scrii stocul numărat; diferența se înregistrează automat).
 - Stocul minim: articolele la sau sub minim apar cu ⚠; cele cu stoc negativ, cu roșu.

@@ -150,7 +150,7 @@ function to_cents(string $price): ?int
 
 /* ---------- database ---------- */
 
-const SCHEMA_VERSION = 3;
+const SCHEMA_VERSION = 5;
 
 function db(): PDO
 {
@@ -255,12 +255,35 @@ function db(): PDO
         );
         CREATE INDEX IF NOT EXISTS stock_moves_item ON stock_moves(item_id, id);
         CREATE INDEX IF NOT EXISTS stock_moves_kind ON stock_moves(kind, id);
+        -- Goods receipts (one per invoice): header data and the invoice photos kept in data/invoices/.
+        CREATE TABLE IF NOT EXISTS receipts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            supplier TEXT NOT NULL DEFAULT '',
+            doc_no TEXT NOT NULL DEFAULT '',
+            doc_date TEXT,
+            note TEXT NOT NULL DEFAULT '',
+            photos TEXT NOT NULL DEFAULT '[]',
+            created_at TEXT NOT NULL
+        );
+        -- Invoice wording learned from confirmed receipts: "COCA COLA 0.25L RGB" -> stock item, 1 invoice unit = factor stock units.
+        CREATE TABLE IF NOT EXISTS stock_aliases (
+            text TEXT PRIMARY KEY,
+            item_id INTEGER NOT NULL REFERENCES stock_items(id),
+            factor INTEGER NOT NULL DEFAULT 1000,
+            updated_at TEXT NOT NULL
+        );
     SQL);
     // Columns added after the first release.
     $cols = array_column($pdo->query('PRAGMA table_info(orders)')->fetchAll(), 'name');
     if (!in_array('waiter_id', $cols, true)) $pdo->exec('ALTER TABLE orders ADD COLUMN waiter_id INTEGER');
     if (!in_array('shift_id', $cols, true)) $pdo->exec('ALTER TABLE orders ADD COLUMN shift_id INTEGER');
     $pdo->exec('CREATE INDEX IF NOT EXISTS orders_shift ON orders(shift_id)');
+    $cols = array_column($pdo->query('PRAGMA table_info(stock_items)')->fetchAll(), 'name');
+    if (!in_array('pack', $cols, true)) $pdo->exec('ALTER TABLE stock_items ADD COLUMN pack INTEGER'); // stock units in one box / case (thousandths)
+    $cols = array_column($pdo->query('PRAGMA table_info(stock_moves)')->fetchAll(), 'name');
+    if (!in_array('receipt_id', $cols, true)) $pdo->exec('ALTER TABLE stock_moves ADD COLUMN receipt_id INTEGER');
+    if (!in_array('cost', $cols, true)) $pdo->exec('ALTER TABLE stock_moves ADD COLUMN cost INTEGER'); // line value in bani, without VAT
+    $pdo->exec('CREATE INDEX IF NOT EXISTS stock_moves_receipt ON stock_moves(receipt_id)');
     $cols = array_column($pdo->query('PRAGMA table_info(days)')->fetchAll(), 'name');
     if (!in_array('auto', $cols, true)) $pdo->exec('ALTER TABLE days ADD COLUMN auto INTEGER NOT NULL DEFAULT 0');
     $pdo->exec('PRAGMA user_version = ' . SCHEMA_VERSION);
@@ -549,3 +572,4 @@ function close_shift(int $shiftId, string $by): array
 }
 
 require_once __DIR__ . '/stock.php';
+require_once __DIR__ . '/invoices.php';

@@ -474,6 +474,26 @@ switch ($action) {
         require_auth();
         out(['ok' => true, 'report' => close_shift((int)(json_body()['id'] ?? 0), 'admin')]);
 
+    /* ---------- photographed invoices ---------- */
+
+    case 'invoices_info':
+        require_auth();
+        [$from, $to] = invoice_period($_GET);
+        out(['ok' => true] + invoice_info($from, $to));
+
+    case 'invoices_zip':
+        if (!logged_in()) { http_response_code(401); exit('Autentifică-te în administrare.'); }
+        [$from, $to] = invoice_period($_GET);
+        invoice_zip($from, $to);
+
+    case 'invoices_delete':
+        // Frees disk space: only the photo files go; receipts, values and stock stay.
+        require_post();
+        require_auth();
+        [$from, $to] = invoice_period(json_body());
+        [$files, $bytes] = invoice_delete($from, $to);
+        out(['ok' => true, 'files' => $files, 'bytes' => $bytes] + invoice_info('', ''));
+
     default:
         fail('Acțiune necunoscută.', 404);
 }

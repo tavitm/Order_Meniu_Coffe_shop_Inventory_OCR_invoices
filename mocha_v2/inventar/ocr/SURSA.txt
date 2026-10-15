@@ -1,0 +1,2 @@
+Tesseract.js 7.0.0, tesseract.js-core 7.0.0 (Apache-2.0) și @tesseract.js-data/ron 1.0.0 (MIT, 4.0.0_best_int).
+Descărcate de pe registry.npmjs.org, verificate cu sha512 publicat pe npm. Doar variantele LSTM ale motorului sunt incluse.

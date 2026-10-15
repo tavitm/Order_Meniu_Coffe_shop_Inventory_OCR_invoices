@@ -61,17 +61,17 @@ function stock_sync_menu(?array $menu = null): void
 
 /**
  * Apply a stock change and log it. Call inside a transaction. Any movement switches tracking on.
- * Returns the stock after the change.
+ * $receiptId and $cost (line value in bani, without VAT) come with goods receipts. Returns the stock after the change.
  */
-function stock_apply(int $itemId, int $delta, string $kind, string $doc = '', string $note = '', ?int $orderId = null): int
+function stock_apply(int $itemId, int $delta, string $kind, string $doc = '', string $note = '', ?int $orderId = null, ?int $receiptId = null, ?int $cost = null): int
 {
     $db = db();
     $db->prepare('UPDATE stock_items SET qty = qty + ?, tracked = 1 WHERE id = ?')->execute([$delta, $itemId]);
     $q = $db->prepare('SELECT qty FROM stock_items WHERE id = ?');
     $q->execute([$itemId]);
     $balance = (int)$q->fetchColumn();
-    $db->prepare('INSERT INTO stock_moves (item_id, kind, qty, balance, doc, note, order_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
-        ->execute([$itemId, $kind, $delta, $balance, $doc, $note, $orderId, now()]);
+    $db->prepare('INSERT INTO stock_moves (item_id, kind, qty, balance, doc, note, order_id, receipt_id, cost, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+        ->execute([$itemId, $kind, $delta, $balance, $doc, $note, $orderId, $receiptId, $cost, now()]);
     return $balance;
 }
 
@@ -152,6 +152,7 @@ function stock_row(array $r, ?array $lastIn = null, int $reserved = 0): array
         'unit' => $r['unit'],
         'qty' => (int)$r['qty'],
         'min' => (int)$r['min_qty'],
+        'pack' => isset($r['pack']) ? (int)$r['pack'] : null,
         'tracked' => (bool)$r['tracked'],
         'archived' => (bool)$r['archived'],
         'last_in' => $lastIn,
