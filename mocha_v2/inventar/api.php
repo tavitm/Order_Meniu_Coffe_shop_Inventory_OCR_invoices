@@ -6,6 +6,10 @@ require __DIR__ . '/../lib/common.php';
 
 start_session('mocha_inventory', 90 * 24 * 3600, 24 * 3600); // ca la admin: maximum 3 luni, expiră după 24 h fără activitate
 maybe_auto_close();
+// A manager whose password was changed or removed in Administrare → Angajați is logged out at the next request.
+if (($_SESSION['role'] ?? '') === 'manager' && (manager_hash() === '' || (int)($_SESSION['login_at'] ?? 0) < (int)setting('manager_pass_set_at', '0'))) {
+    $_SESSION = [];
+}
 
 /** Quantity field: $allowZero for a stock count (the shelf may be empty). */
 function qty_field(mixed $v, string $label, bool $allowZero = false): int
@@ -119,11 +123,14 @@ $action = $_GET['action'] ?? '';
 switch ($action) {
     case 'status':
         $in = !empty($_SESSION['auth']);
-        out(['ok' => true, 'loggedIn' => $in, 'csrf' => $in ? $_SESSION['csrf'] : null, 'configured' => mb_strlen(ADMIN_PASSWORD) >= 10]);
+        out(['ok' => true, 'loggedIn' => $in, 'csrf' => $in ? $_SESSION['csrf'] : null, 'role' => $in ? ($_SESSION['role'] ?? 'admin') : null,
+            'configured' => admin_account() !== '' || manager_hash() !== '']);
 
     case 'login':
-        password_login(ADMIN_PASSWORD, 'Parola nu este setată. Editează admin/config.php (minimum 10 caractere).');
-        out(['ok' => true, 'csrf' => $_SESSION['csrf']]);
+        // The admin password or the inventory manager's password; the manager can only ever get in here.
+        $role = password_login(['admin' => admin_account(), 'manager' => manager_hash()],
+            'Nu există nicio parolă pentru inventar: setează parola de admin în admin/config.php sau o parolă de gestionar din Administrare → Angajați.', 'inventar');
+        out(['ok' => true, 'csrf' => $_SESSION['csrf'], 'role' => $role]);
 
     case 'logout':
         $_SESSION = [];
@@ -251,7 +258,7 @@ switch ($action) {
         require_session_auth();
         $q = clean_str($_GET['q'] ?? '', 60);
         $sql = "SELECT r.*, COUNT(m.id) AS lines, SUM(m.cost) AS total FROM receipts r LEFT JOIN stock_moves m ON m.receipt_id = r.id"
-            . ($q !== '' ? ' WHERE r.supplier LIKE ? OR r.doc_no LIKE ? OR r.note LIKE ?' : '')
+            . ($q !== '' ? " WHERE r.supplier LIKE ? ESCAPE '\\' OR r.doc_no LIKE ? ESCAPE '\\' OR r.note LIKE ? ESCAPE '\\'" : '')
             . ' GROUP BY r.id ORDER BY r.id DESC LIMIT 300';
         $st = db()->prepare($sql);
         $like = '%' . addcslashes($q, '%_') . '%';
@@ -268,7 +275,7 @@ switch ($action) {
         if (!is_string($name) || !preg_match(PHOTO_NAME, $name) || !is_file(INVOICE_DIR . '/' . $name)) { http_response_code(404); exit('Poza nu există.'); }
         header('Content-Type: ' . array_search(pathinfo($name, PATHINFO_EXTENSION), PHOTO_TYPES, true));
         header('Content-Length: ' . filesize(INVOICE_DIR . '/' . $name));
-        header('Cache-Control: private, max-age=86400');
+        header('Cache-Control: no-store');
         header('X-Content-Type-Options: nosniff');
         readfile(INVOICE_DIR . '/' . $name);
         exit;

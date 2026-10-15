@@ -64,7 +64,10 @@
 
   /* Offer banner */
   .banner { margin: 34px auto 0; max-width: 520px; }
-  .banner img { width: 100%; height: auto; border-radius: 18px; box-shadow: var(--shadow); }
+  .banner img, .banner video { display: block; width: 100%; height: auto; border-radius: 18px; box-shadow: var(--shadow); }
+  .banner { position: relative; }
+  .banner video { background: #000; }
+  .banner .sound { position: absolute; right: 12px; bottom: 12px; width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(38, 29, 26, .72); color: var(--cream); font-size: 18px; cursor: pointer; display: grid; place-items: center; box-shadow: 0 4px 12px rgba(0,0,0,.35); -webkit-tap-highlight-color: transparent; }
 
   /* Categories */
   main { padding: 34px 0 40px; }
@@ -235,10 +238,25 @@
   if (s.logo && s.logo !== 'assets/Logo_mocha_800.png') document.querySelectorAll('.logo').forEach(i => i.src = s.logo);
 
   const b = s.banner || {};
-  if (b.visible && b.image) {
+  if (b.visible && (b.video || b.image)) {
     const box = document.getElementById('banner');
-    box.querySelector('img').src = b.image;
-    box.querySelector('img').alt = b.alt || '';
+    const img = box.querySelector('img');
+    const showImage = () => { if (!b.image) { box.hidden = true; return; } img.src = b.image; img.alt = b.alt || ''; img.hidden = false; };
+    if (b.video) {
+      // Plays by itself without sound (phones allow autoplay only muted); one tap on the speaker turns the sound on.
+      const v = el('video');
+      v.src = b.video; v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true; v.preload = 'metadata';
+      v.setAttribute('playsinline', ''); v.setAttribute('muted', '');
+      if (b.image) v.poster = b.image;
+      if (b.alt) v.setAttribute('aria-label', b.alt);
+      const sound = el('button', 'sound', '🔇'); sound.type = 'button'; sound.setAttribute('aria-label', 'Pornește sunetul');
+      sound.onclick = () => { v.muted = !v.muted; sound.textContent = v.muted ? '🔇' : '🔊'; sound.setAttribute('aria-label', v.muted ? 'Pornește sunetul' : 'Oprește sunetul'); if (v.paused) v.play().catch(() => {}); };
+      // The file is missing or the phone cannot play it: fall back to the image.
+      v.onerror = () => { v.remove(); sound.remove(); showImage(); };
+      img.hidden = true;
+      box.append(v, sound);
+      v.play().catch(() => {});
+    } else showImage();
     box.hidden = false;
   }
 

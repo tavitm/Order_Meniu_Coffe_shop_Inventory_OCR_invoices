@@ -205,7 +205,7 @@
 <section class="login" id="login" hidden>
   <form id="loginForm">
     <h1>Inventar</h1>
-    <p class="hint" style="margin:0">Aceeași parolă ca la administrarea meniului.</p>
+    <p class="hint" style="margin:0">Intră cu parola de administrare sau cu parola de gestionar.</p>
     <div class="msg info" id="notConfigured" hidden>Parola nu este setată. Editează <b>admin/config.php</b> pe server (minimum 10 caractere).</div>
     <label class="f"><span>Parolă</span><input type="password" id="password" autocomplete="current-password" required></label>
     <div class="msg" id="loginErr" hidden></div>
@@ -217,7 +217,7 @@
   <header class="top">
     <div class="top-in">
       <h1>Inventar</h1>
-      <a class="btn" href="../admin/">Administrare meniu</a>
+      <a class="btn" href="../admin/" id="adminLink">Administrare meniu</a>
       <button class="btn" id="logoutBtn">Ieșire</button>
     </div>
     <nav class="tabs" role="tablist">
@@ -308,6 +308,7 @@
 const API = 'api.php';
 const KINDS = { in: 'Intrare', out: 'Ieșire', count: 'Inventar', sale: 'Vânzare' };
 let csrf = null;
+let role = null;        // 'admin' or 'manager' (the manager has no access to the admin page)
 let items = [];
 const byId = new Map();
 const open = new Set();     // group keys shown expanded
@@ -370,8 +371,10 @@ const label = it => it.name || '(fără nume)';
 const full = it => label(it) + (it.variant ? ' · ' + it.variant : '');
 const level = it => !it.tracked || it.archived ? '' : it.qty < 0 ? 'neg' : (it.min > 0 && it.qty <= it.min) ? 'low' : '';
 
+// Text that Excel would run as a formula (=, +, -, @) gets an apostrophe; plain numbers stay numbers.
+const csvCell = v => { v = String(v ?? ''); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d+([.,]\d+)?$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; };
 function downloadCsv(name, rows) {
-  const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const q = csvCell;
   const csv = '﻿' + rows.map(r => r.map(q).join(';')).join('\r\n');
   const a = h('a', { href: URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })), download: name });
   document.body.append(a); a.click(); a.remove();
@@ -410,7 +413,8 @@ $('loginForm').addEventListener('submit', async e => {
   $('loginErr').hidden = true;
   try {
     const d = await api('login', { password: $('password').value });
-    csrf = d.csrf;
+    csrf = d.csrf; role = d.role;
+    $('adminLink').hidden = role === 'manager';
     $('password').value = '';
     $('login').hidden = true;
     await load();
@@ -1078,7 +1082,7 @@ document.addEventListener('visibilitychange', () => {
   try {
     const st = await api('status');
     $('notConfigured').hidden = st.configured;
-    if (st.loggedIn) { csrf = st.csrf; await load(); $('app').hidden = false; }
+    if (st.loggedIn) { csrf = st.csrf; role = st.role; $('adminLink').hidden = role === 'manager'; await load(); $('app').hidden = false; }
     else showLogin();
   } catch (err) {
     showLogin();

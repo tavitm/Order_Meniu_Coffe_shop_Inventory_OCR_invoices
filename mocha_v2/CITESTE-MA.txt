@@ -5,7 +5,7 @@ Meniul public:   http://tudorheritage.ro/mocha/
 Comanda mea:     http://tudorheritage.ro/mocha/comanda.html  (se deschide din meniu)
 Ospătar:         http://tudorheritage.ro/mocha/ospatar/
 Administrare:    http://tudorheritage.ro/mocha/admin/  (tab „Încasări” = situația zilei)
-Inventar:        http://tudorheritage.ro/mocha/inventar/  (aceeași parolă ca la administrare)
+Inventar:        http://tudorheritage.ro/mocha/inventar/  (parola de administrare sau cea de gestionar)
 
 INSTALARE (o singură dată)
 1. Deschide admin/config.php și scrie parola între ghilimele:
@@ -18,8 +18,9 @@ INSTALARE (o singură dată)
 3. În cPanel → „Select PHP Version” (sau „MultiPHP Manager”): PHP 8.1 sau mai nou.
 4. Folderele data/ și uploads/ trebuie să poată fi scrise de PHP
    (de obicei permisiuni 755 ajung; dacă salvarea dă eroare, încearcă 775).
-5. Ospătarii (maximum 6) se adaugă din Administrare → tab „Ospătari”, fiecare cu
-   numele și parola lui (minimum 8 caractere; nu se acceptă numele lui sau cifre în ordine). Nu mai există o parolă comună în config.php.
+5. Ospătarii (maximum 6) se adaugă din Administrare → tab „Angajați”, fiecare cu
+   numele și parola lui. Tot acolo se setează parola gestionarului (contul pentru inventar).
+   Nu mai există o parolă comună în config.php.
 6. Comenzile se salvează într-o bază SQLite (data/db/orders.sqlite, creată automat).
    Serverul trebuie să aibă extensia „pdo_sqlite” activă (cPanel → Select PHP Version
    → Extensions). Folderul data/db/ e protejat; nu-l șterge.
@@ -35,6 +36,14 @@ CUM FUNCȚIONEAZĂ
   (produse, prețuri, categorii afișate/ascunse, imaginea ofertei, setări), nu codul site-ului.
 - Imaginile încărcate din admin ajung în uploads/ (JPG, PNG, WEBP, GIF, max. 5 MB).
 - Imaginea ofertei (bannerul de deasupra categoriilor) se schimbă din tab-ul „Imagine ofertă”.
+- Tot acolo poți încărca și un VIDEO pentru ofertă (MP4 H.264 sau WebM; filmările de pe iPhone,
+  MOV, se convertesc întâi în MP4). Clienții îl văd în locul imaginii, pornit automat fără sunet,
+  în buclă, cu un buton de sunet; imaginea rămâne ca fundal până se încarcă video-ul și apare
+  în locul lui dacă telefonul nu-l poate reda. Recomandat: vertical sau pătrat, 720p, sub 15 MB
+  și 30 de secunde, ca să se încarce repede pe 4G. Limita de mărime o dă serverul
+  (upload_max_filesize / post_max_size din cPanel → Select PHP Version → Options); admin-ul
+  o afișează sub butonul „Încarcă video”. Video-ul NU intră în backup-ul descărcat al meniului
+  (ar fi prea mare); păstrează fișierul original pe calculator.
 - Prețurile se scriu doar cu cifre (ex. 14 sau 15.50); moneda se setează în tab-ul „Setări”.
 - Categoriile sau produsele ascunse nu apar în meniu, dar rămân în admin.
   O categorie fără niciun produs afișat nu apare deloc.
@@ -50,7 +59,7 @@ COMENZI
   Fiecare plată/anulare se înregistrează pe numele lui.
 - „Închide tura”: raport de predare (numerar de predat, card, comenzi anulate, produse),
   salvat și tipăribil; apoi ospătarul e delogat. „Ieșire” delogează fără să închidă tura.
-- Admin → Ospătari: adaugi, redenumești, dezactivezi sau ștergi ospătari, vezi cine e în
+- Admin → Angajați: adaugi, redenumești, dezactivezi sau ștergi ospătari, vezi cine e în
   tură, poți închide tura unui ospătar și vezi rapoartele pe fiecare ospătar (tipărire/CSV).
 - Admin → Setări → „Comenzi online”: pornești/oprești comenzile și setezi numărul de mese.
 - Admin → Încasări: încasări numerar/card, comenzi deschise și anulate, statistică mese,
@@ -62,8 +71,10 @@ COMENZI
   ospătarului) și include doar comenzile închise până la ora setată.
 
 INVENTAR (/inventar/)
-- Intri cu parola de administrare. Sesiunea e separată de cea din admin: te autentifici
-  o dată în fiecare pagină.
+- Intri cu parola de administrare sau cu parola de gestionar (Admin → Angajați → Gestionar).
+  Gestionarul are acces doar la inventar (stocuri, recepții, scanarea facturilor), nu la
+  administrare; dacă îi schimbi sau îi ștergi parola, este delogat imediat. Sesiunea e
+  separată de cea din admin: te autentifici o dată în fiecare pagină.
 - Fiecare produs din meniu are automat un rând în inventar. Un produs nou primește rândul
   la „Salvează” în admin; redenumirile și mutările între categorii se preiau singure;
   un produs șters din meniu trece la „Arhivate”, cu tot istoricul.

@@ -94,11 +94,19 @@ function invoice_zip(string $from, string $to): never
         $csv[] = [$r['doc_date'] ?? '', $r['supplier'], $r['doc_no'], substr($r['created_at'], 0, 16), (string)(int)$r['lines'],
             $r['total'] !== null ? number_format((int)$r['total'] / 100, 2, ',', '') : '', implode(' ', $names)];
     }
-    $lines = array_map(fn($row) => implode(';', array_map(fn($v) => '"' . str_replace('"', '""', (string)$v) . '"', $row)), $csv);
+    $lines = array_map(fn($row) => implode(';', array_map('csv_cell', $row)), $csv);
     array_unshift($entries, ['name' => 'facturi.csv', 'data' => "\u{FEFF}" . implode("\r\n", $lines) . "\r\n"]);
 
     $label = ($from ?: $receipts[0]['day']) . '_' . ($to ?: $receipts[count($receipts) - 1]['day']);
     zip_stream('facturi-mocha_' . $label . '.zip', $entries);
+}
+
+/** One CSV cell, quoted. Text starting like a formula (=, +, -, @) gets an apostrophe so Excel shows it instead of running it. */
+function csv_cell(mixed $v): string
+{
+    $v = (string)$v;
+    if (preg_match('/^[=+\-@\t\r]/', $v) && !preg_match('/^-?\d+([.,]\d+)?$/', $v)) $v = "'" . $v;
+    return '"' . str_replace('"', '""', $v) . '"';
 }
 
 /** Minimal ZIP writer (stored entries, UTF-8 names). $entries: [['name' =>, 'file' => path] | ['name' =>, 'data' => string]]. */

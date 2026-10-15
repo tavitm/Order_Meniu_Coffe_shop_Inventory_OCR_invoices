@@ -62,13 +62,17 @@ switch ($action) {
         $_SESSION['fails'] = array_values(array_filter($_SESSION['fails'] ?? [], fn($t) => $t > $now - 900));
         if (count($_SESSION['fails']) >= 5) fail('Prea multe încercări. Așteaptă 15 minute.', 429);
         $body = json_body();
+        $wid = (int)($body['waiter'] ?? 0);
+        // Per account as well: short passwords must not be guessable by spreading the attempts over many addresses.
+        rate_check('waiter-login-fail:w' . $wid, 10, 900, 'Prea multe încercări greșite pentru acest ospătar. Așteaptă 15 minute.');
         $q = db()->prepare('SELECT id, name, pass_hash FROM waiters WHERE id = ? AND active = 1 AND deleted = 0');
-        $q->execute([(int)($body['waiter'] ?? 0)]);
+        $q->execute([$wid]);
         $w = $q->fetch();
         $pass = is_string($body['password'] ?? null) ? $body['password'] : '';
         if (!$w || !password_verify($pass, $w['pass_hash'])) {
             $_SESSION['fails'][] = $now;
             rate_hit('waiter-login-fail:' . client_ip());
+            rate_hit('waiter-login-fail:w' . $wid);
             sleep(1);
             fail('Nume sau parolă greșită.', 401);
         }

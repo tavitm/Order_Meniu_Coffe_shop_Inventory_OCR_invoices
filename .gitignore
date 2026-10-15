@@ -24,5 +24,6 @@ mocha_v2/data/sessions/*/
 # Arhive de urcare pe server (pot conține config.php cu parola)
 *.zip
 
-# Pozele facturilor scanate (doar pe server)
-mocha_v2/data/invoices/
+# Pozele facturilor scanate (doar pe server); .htaccess-ul folderului rămâne în repo
+mocha_v2/data/invoices/*
+!mocha_v2/data/invoices/.htaccess

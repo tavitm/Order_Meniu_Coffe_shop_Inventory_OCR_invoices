@@ -101,6 +101,7 @@
   .panel h2 { margin: 0; font-size: 15px; }
   .banner-prev { width: 100%; max-width: 420px; aspect-ratio: 1; border: 1px dashed var(--line); border-radius: 10px; background: var(--soft) center / contain no-repeat; display: grid; place-items: center; color: var(--muted); cursor: pointer; position: relative; }
   .banner-prev:hover { border-color: var(--accent); }
+  .video-prev { width: 100%; max-width: 420px; max-height: 420px; border-radius: 10px; background: #000; display: block; }
   .banner-prev.busy::after { content: "Se încarcă…"; position: absolute; inset: 0; display: grid; place-items: center; background: rgba(255,255,255,.75); border-radius: 10px; color: var(--text); }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .hint { font-size: 12px; color: var(--muted); margin: 0; }
@@ -201,7 +202,7 @@
       <button role="tab" aria-selected="false" data-tab="settings">Setări</button>
       <button role="tab" aria-selected="false" data-tab="backup">Backup</button>
       <button role="tab" aria-selected="false" data-tab="sales">Încasări</button>
-      <button role="tab" aria-selected="false" data-tab="waiters">Ospătari</button>
+      <button role="tab" aria-selected="false" data-tab="waiters">Angajați</button>
       <button role="tab" aria-selected="false" data-tab="invoices">Facturi</button>
     </nav>
   </header>
@@ -228,6 +229,16 @@
           <button class="btn danger" id="bannerRemove">Elimină imaginea</button>
         </div>
         <label class="f"><span>Descrierea ofertei (text alternativ pentru cititoare de ecran)</span><input id="bannerAlt" maxlength="200" placeholder="ex. Espresso + apă Dorna 500 ml, 19 lei"></label>
+      </div>
+      <div class="panel">
+        <h2>Video-ul ofertei</h2>
+        <p class="hint" id="videoHint">Opțional. Dacă încarci un video, clienții îl văd în locul imaginii, pornit automat fără sunet (cu buton de sunet); imaginea rămâne ca fundal până se încarcă video-ul. Format: <b>MP4 (H.264)</b> sau WebM, recomandat vertical sau pătrat, 720p, sub 15 MB și 30 de secunde.</p>
+        <video id="videoPrev" class="video-prev" controls playsinline muted preload="metadata" hidden></video>
+        <div class="toolbar">
+          <button class="btn primary" id="videoUpload">Încarcă video</button>
+          <button class="btn danger" id="videoRemove">Elimină video-ul</button>
+        </div>
+        <p class="hint" id="videoStatus"></p>
       </div>
     </section>
 
@@ -314,12 +325,22 @@
     <section id="tab-waiters" hidden>
       <div class="panel">
         <h2>Ospătari <span class="hint" id="waiterCount"></span></h2>
-        <p class="hint">Fiecare ospătar intră la <b>/ospatar/</b> cu numele și parola lui. Plățile și anulările se înregistrează pe numele celui care le face. Parola: minimum 8 caractere; nu se acceptă numele ospătarului sau cifre în ordine.</p>
+        <p class="hint">Fiecare ospătar intră la <b>/ospatar/</b> cu numele și parola lui. Plățile și anulările se înregistrează pe numele celui care le face.</p>
         <div id="waiterList"></div>
         <form class="toolbar wadd" id="waiterAdd">
           <input id="newWaiterName" maxlength="40" placeholder="Nume ospătar nou" autocomplete="off">
-          <input id="newWaiterPass" type="password" minlength="8" placeholder="Parolă (min. 8 caractere)" autocomplete="new-password">
+          <input id="newWaiterPass" type="password" placeholder="Parolă" autocomplete="new-password">
           <button class="btn primary" type="submit">+ Adaugă ospătar</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>Gestionar (inventar)</h2>
+        <p class="hint">Un cont separat pentru cine primește marfa: intră la <b>/inventar/</b> doar cu parola, fără nume, și are acces numai la inventar (stocuri, recepții, facturi), nu la administrare.</p>
+        <p id="managerStatus"></p>
+        <form class="toolbar" id="managerForm">
+          <input id="managerPass" type="password" placeholder="Parolă nouă" autocomplete="new-password" style="flex:1 1 180px;width:auto">
+          <button class="btn primary" type="submit" id="managerSave">Setează parola</button>
+          <button class="btn danger" type="button" id="managerClear" hidden>Dezactivează contul</button>
         </form>
       </div>
       <div class="panel">
@@ -355,6 +376,7 @@
 
 <input type="file" id="jsonPick" accept=".json,application/json" hidden>
 <input type="file" id="filePick" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+<input type="file" id="videoPick" accept="video/mp4,video/webm" hidden>
 
 <script>
 const API = 'api.php';
@@ -404,18 +426,19 @@ async function api(action, opts = {}) {
   if (!data.ok) throw new Error(data.error || 'Eroare necunoscută.');
   return data;
 }
-function pickImage() {
+function pickImage(input = 'filePick') {
   return new Promise(resolve => {
-    const inp = $('filePick');
+    const inp = $(input);
     inp.value = '';
     inp.onchange = () => resolve(inp.files[0] || null);
     inp.click();
   });
 }
-async function upload(file) {
+let limits = { imageMb: 5, videoMb: 60, serverMb: 60 };
+async function upload(file, kind = 'image') {
   const fd = new FormData();
   fd.append('image', file);
-  return (await api('upload', { body: fd })).path;
+  return (await api('upload' + (kind === 'video' ? '&kind=video' : ''), { body: fd })).path;
 }
 
 /* ---------- auth ---------- */
@@ -786,6 +809,30 @@ function renderSettings() {
   $('bannerPrev').onclick = replace;
   $('bannerPrev').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); replace(); } };
   $('bannerRemove').onclick = () => { s.banner.image = ''; setDirty(); paint(); };
+  // Offer video
+  const paintVideo = () => {
+    const v = $('videoPrev');
+    if (s.banner.video) { v.src = ROOT + s.banner.video; v.hidden = false; } else { v.removeAttribute('src'); v.hidden = true; }
+    $('videoRemove').disabled = !s.banner.video;
+    $('videoStatus').textContent = s.banner.video ? 'Video curent: ' + s.banner.video.replace('uploads/', '') : `Niciun video. Serverul acceptă fișiere de cel mult ${limits.videoMb} MB.`;
+  };
+  $('videoUpload').onclick = async () => {
+    const f = await pickImage('videoPick');
+    if (!f) return;
+    if (f.size > limits.videoMb * 1048576) { toast(`Video-ul are ${(f.size / 1048576).toFixed(1)} MB; serverul acceptă cel mult ${limits.videoMb} MB. Comprimă-l (720p, H.264) și încearcă din nou.`, true); return; }
+    $('videoUpload').disabled = true;
+    $('videoStatus').textContent = `Se încarcă (${(f.size / 1048576).toFixed(1)} MB)…`;
+    try {
+      s.banner.video = await upload(f, 'video');
+      s.banner.visible = true;
+      $('bannerVisible').checked = true;
+      setDirty(); paintVideo();
+      toast('Video încărcat. Apasă „Salvează” ca să-l publici.');
+    } catch (err) { toast(err.message, true); paintVideo(); }
+    finally { $('videoUpload').disabled = false; }
+  };
+  $('videoRemove').onclick = () => { s.banner.video = ''; setDirty(); paintVideo(); };
+  paintVideo();
   s.orders ??= { enabled: true, tables: 20 };
   $('ordersEnabled').checked = s.orders.enabled !== false;
   $('ordersEnabled').onchange = () => { s.orders.enabled = $('ordersEnabled').checked; setDirty(); };
@@ -886,6 +933,8 @@ async function loadSales() {
   salesTimer = setTimeout(loadSales, document.hidden ? 30000 : 10000);
 }
 
+// Text that Excel would run as a formula (=, +, -, @) gets an apostrophe; plain numbers stay numbers.
+const csvCell = v => { v = String(v ?? ''); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d+([.,]\d+)?$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; };
 function printStats(st, title) {
   $('printArea').replaceChildren(h('h1', {}, title), h('p', {}, `Perioada: ${dt(st.from)} – ${dt(st.to)}`), statsView(st));
   $('printArea').hidden = false;
@@ -894,7 +943,7 @@ function printStats(st, title) {
 }
 
 function csvReport(st, id) {
-  const q = v => `"${String(v).replace(/"/g, '""')}"`;
+  const q = csvCell;
   const m = c => (c / 100).toFixed(2);
   const rows = [
     ['Raport Z', '#' + id], ['De la', st.from], ['Până la', st.to], [],
@@ -960,6 +1009,9 @@ async function loadWaiters() {
     const d = await api('waiters');
     waiterCache = d.waiters;
     $('waiterCount').textContent = `(${d.waiters.length} din ${d.max})`;
+    $('managerStatus').textContent = d.manager.set ? `Cont activ (parola setată la ${dt(d.manager.since)}). Ca s-o schimbi, scrie una nouă.` : 'Niciun cont de gestionar. Setează o parolă ca să-l activezi.';
+    $('managerSave').textContent = d.manager.set ? 'Schimbă parola' : 'Setează parola';
+    $('managerClear').hidden = !d.manager.set;
     $('waiterAdd').hidden = d.waiters.length >= d.max;
     const sel = $('shiftFilter'), cur = sel.value;
     sel.replaceChildren(h('option', { value: '' }, 'Toți ospătarii'), ...d.waiters.map(w => h('option', { value: w.id }, w.name)));
@@ -995,6 +1047,19 @@ async function loadWaiters() {
     }
   } catch (err) { box.textContent = err.message; }
 }
+$('managerForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  try {
+    await api('manager_save', { body: JSON.stringify({ password: $('managerPass').value }), json: true });
+    $('managerPass').value = '';
+    toast('Parola gestionarului a fost salvată.'); loadWaiters();
+  } catch (err) { toast(err.message, true); }
+});
+$('managerClear').onclick = async () => {
+  if (!confirm('Dezactivezi contul de gestionar? Nu va mai putea intra în inventar până nu setezi o parolă nouă.')) return;
+  try { await api('manager_clear', { body: '{}', json: true }); toast('Contul de gestionar a fost dezactivat.'); loadWaiters(); }
+  catch (err) { toast(err.message, true); }
+};
 $('waiterAdd').addEventListener('submit', async e => {
   e.preventDefault();
   try {
@@ -1027,7 +1092,7 @@ async function showShift(id) {
   catch (err) { toast(err.message, true); }
 }
 function csvShift(r) {
-  const q = v => `"${String(v).replace(/"/g, '""')}"`;
+  const q = csvCell;
   const m = c => (c / 100).toFixed(2);
   const rows = [
     ['Raport tură', '#' + r.shift], ['Ospătar', r.waiter], ['De la', r.from], ['Până la', r.to], [],
@@ -1066,6 +1131,7 @@ function renderAll() { renderCats(); renderSettings(); }
 (async () => {
   try {
     const st = await api('status');
+    if (st.limits) limits = st.limits;
     $('notConfigured').hidden = st.configured;
     if (st.loggedIn) { csrf = st.csrf; await loadMenu(); $('app').hidden = false; }
     else showLogin();

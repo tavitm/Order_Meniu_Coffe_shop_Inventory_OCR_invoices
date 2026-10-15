@@ -30,6 +30,12 @@ Options -Indexes
   Header always unset X-Powered-By
 </IfModule>
 
+# 3b. Video-ul ofertei: tipul corect, ca telefoanele să-l redea (și derulare pe bucăți)
+<IfModule mod_mime.c>
+  AddType video/mp4 .mp4
+  AddType video/webm .webm
+</IfModule>
+
 # 4. Compresie pentru text (menu.json scade de ~10 ori)
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css text/plain application/javascript text/javascript application/json image/svg+xml
@@ -41,7 +47,7 @@ Options -Indexes
   <FilesMatch "\.(woff2)$">
     Header set Cache-Control "public, max-age=2592000"
   </FilesMatch>
-  <FilesMatch "\.(webp|png|jpe?g|gif|svg)$">
+  <FilesMatch "\.(webp|png|jpe?g|gif|svg|mp4|webm)$">
     Header set Cache-Control "public, max-age=604800"
   </FilesMatch>
   <FilesMatch "\.(html|css|js|json)$">

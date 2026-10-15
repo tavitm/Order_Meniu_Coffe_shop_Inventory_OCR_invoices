@@ -23,6 +23,28 @@ function require_auth(): void
 
 // Only image files directly inside uploads/ or assets/ (no dotfiles, no other extensions).
 const IMAGE_PATH = '#^(uploads|assets)/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(webp|png|jpe?g|gif|svg)$#i';
+// The offer video: an MP4 (H.264) or WebM uploaded from the admin page. Older config.php files have no video limit.
+const VIDEO_PATH = '#^uploads/[A-Za-z0-9_-][A-Za-z0-9._-]*\.(mp4|webm)$#i';
+if (!defined('MAX_VIDEO_MB')) define('MAX_VIDEO_MB', 60);
+const VIDEO_TYPES = ['video/mp4' => 'mp4', 'video/webm' => 'webm'];
+
+/** Smallest of PHP's upload limits, in MB (what the server accepts in one request, whatever config.php says). */
+function server_upload_mb(): int
+{
+    $mb = function (string $v): float {
+        $n = (float)$v;
+        return match (strtolower(substr(trim($v), -1))) { 'g' => $n * 1024, 'm' => $n, 'k' => $n / 1024, default => $n / 1048576 };
+    };
+    return (int)floor(min($mb((string)ini_get('upload_max_filesize')), $mb((string)ini_get('post_max_size'))));
+}
+
+function clean_video_path(mixed $v): string
+{
+    $v = clean_str($v, 300);
+    if ($v === '') return '';
+    if (!preg_match(VIDEO_PATH, $v)) fail('Cale de video invalidă: ' . $v);
+    return $v;
+}
 
 function clean_path(mixed $v): string
 {
@@ -36,21 +58,6 @@ function clean_id(mixed $v, string $prefix): string
 {
     $v = clean_str($v, 40);
     return preg_match('/^[A-Za-z0-9_-]+$/', $v) ? $v : $prefix . bin2hex(random_bytes(4));
-}
-
-/** Waiter names are public (the login buttons), so the password alone protects the account: refuse the guessable ones. */
-function check_waiter_password(string $pass, string $name): void
-{
-    if (mb_strlen($pass) < 8) fail('Parola trebuie să aibă minimum 8 caractere.');
-    $low = mb_strtolower($pass);
-    $common = ['12345678', '123456789', '1234567890', '87654321', 'password', 'password1', 'parola123', 'parola1234',
-        'qwertyui', 'qwerty123', 'abcdefgh', 'iloveyou', 'ospatar1', 'ospatar123', 'mocha123', 'mocha1234', 'mocha2026'];
-    $trivial = in_array($low, $common, true)
-        || preg_match('/^(.)\1+$/u', $low)                        // același caracter repetat
-        || str_contains('01234567890123456789', $low)             // cifre în ordine (12345678, 23456789…)
-        || str_contains('09876543210987654321', $low)
-        || (mb_strlen($name) >= 3 && str_contains($low, mb_strtolower($name)));
-    if ($trivial) fail('Parola este prea ușor de ghicit. Alege alta: nu numele ospătarului, nu cifre în ordine.');
 }
 
 function clean_menu(array $in): array
@@ -67,6 +74,7 @@ function clean_menu(array $in): array
             'banner' => [
                 'visible' => (bool)($b['visible'] ?? false),
                 'image' => clean_path($b['image'] ?? ''),
+                'video' => clean_video_path($b['video'] ?? ''),
                 'alt' => clean_str($b['alt'] ?? '', 200),
             ],
             'footer' => [
@@ -203,10 +211,11 @@ $action = $_GET['action'] ?? '';
 
 switch ($action) {
     case 'status':
-        out(['ok' => true, 'loggedIn' => logged_in(), 'csrf' => logged_in() ? $_SESSION['csrf'] : null, 'configured' => mb_strlen(ADMIN_PASSWORD) >= 10]);
+        out(['ok' => true, 'loggedIn' => logged_in(), 'csrf' => logged_in() ? $_SESSION['csrf'] : null, 'configured' => mb_strlen(ADMIN_PASSWORD) >= 10,
+            'limits' => ['imageMb' => MAX_UPLOAD_MB, 'videoMb' => min(MAX_VIDEO_MB, server_upload_mb()), 'serverMb' => server_upload_mb()]]);
 
     case 'login':
-        password_login(ADMIN_PASSWORD, 'Parola nu este setată. Editează admin/config.php (minimum 10 caractere).');
+        password_login(['admin' => admin_account()], 'Parola nu este setată. Editează admin/config.php (minimum 10 caractere).');
         out(['ok' => true, 'csrf' => $_SESSION['csrf']]);
 
     case 'logout':
@@ -230,20 +239,30 @@ switch ($action) {
     case 'upload':
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') fail('Metodă invalidă.', 405);
         require_auth();
+        // One upload action for product / offer images and for the offer video; the file's content decides which it is.
         $f = $_FILES['image'] ?? null;
+        $video = ($_GET['kind'] ?? '') === 'video';
+        $what = $video ? 'Video-ul' : 'Imaginea';
         if (!$f || ($f['error'] ?? 1) !== UPLOAD_ERR_OK) {
             $err = $f['error'] ?? -1;
-            fail(in_array($err, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? 'Imaginea depășește limita serverului.' : 'Încărcarea a eșuat.');
+            fail(in_array($err, [UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE], true) ? $what . ' depășește limita serverului (' . server_upload_mb() . ' MB pe fișier).' : 'Încărcarea a eșuat.');
         }
-        if ($f['size'] > MAX_UPLOAD_MB * 1024 * 1024) fail('Imaginea depășește ' . MAX_UPLOAD_MB . ' MB.');
-        $types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+        $maxMb = $video ? MAX_VIDEO_MB : MAX_UPLOAD_MB;
+        if ($f['size'] > $maxMb * 1024 * 1024) fail($what . ' depășește ' . $maxMb . ' MB.');
         $mime = (new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
-        if (!isset($types[$mime]) || @getimagesize($f['tmp_name']) === false) fail('Sunt acceptate doar imagini JPG, PNG, WEBP sau GIF.');
+        if ($video) {
+            if (!isset(VIDEO_TYPES[$mime])) fail('Sunt acceptate doar fișiere video MP4 (H.264) sau WebM. Filmările de pe iPhone (MOV) se convertesc întâi în MP4.');
+            $ext = VIDEO_TYPES[$mime];
+        } else {
+            $types = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'image/gif' => 'gif'];
+            if (!isset($types[$mime]) || @getimagesize($f['tmp_name']) === false) fail('Sunt acceptate doar imagini JPG, PNG, WEBP sau GIF.');
+            $ext = $types[$mime];
+        }
         $base = strtolower(pathinfo($f['name'], PATHINFO_FILENAME));
-        $base = trim(preg_replace('/[^a-z0-9]+/', '-', $base) ?? '', '-') ?: 'imagine';
-        $name = substr($base, 0, 40) . '-' . bin2hex(random_bytes(3)) . '.' . $types[$mime];
+        $base = trim(preg_replace('/[^a-z0-9]+/', '-', $base) ?? '', '-') ?: ($video ? 'video' : 'imagine');
+        $name = substr($base, 0, 40) . '-' . bin2hex(random_bytes(3)) . '.' . $ext;
         if (!is_dir(UPLOAD_DIR)) @mkdir(UPLOAD_DIR, 0755, true);
-        if (!move_uploaded_file($f['tmp_name'], UPLOAD_DIR . '/' . $name)) fail('Nu am putut salva imaginea. Verifică permisiunile folderului uploads/.', 500);
+        if (!move_uploaded_file($f['tmp_name'], UPLOAD_DIR . '/' . $name)) fail('Nu am putut salva fișierul. Verifică permisiunile folderului uploads/.', 500);
         out(['ok' => true, 'path' => 'uploads/' . $name]);
 
     case 'backups':
@@ -401,7 +420,24 @@ switch ($action) {
             $open = $q->fetch();
             $w['open_shift'] = $open ? ['id' => (int)$open['id'], 'from' => $open['started_at']] : null;
         }
-        out(['ok' => true, 'waiters' => $list, 'max' => MAX_WAITERS]);
+        out(['ok' => true, 'waiters' => $list, 'max' => MAX_WAITERS,
+            'manager' => ['set' => manager_hash() !== '', 'since' => manager_hash() !== '' ? date('Y-m-d H:i:s', (int)setting('manager_pass_set_at', '0')) : null]]);
+
+    case 'manager_save':
+        // The inventory manager: one account, password only, logs in at /inventar/ (never here).
+        require_post();
+        require_auth();
+        $pass = is_string(json_body()['password'] ?? null) ? json_body()['password'] : '';
+        check_staff_password($pass);
+        set_setting('manager_pass_hash', password_hash($pass, PASSWORD_DEFAULT));
+        set_setting('manager_pass_set_at', (string)time()); // older manager sessions end at their next request
+        out(['ok' => true]);
+
+    case 'manager_clear':
+        require_post();
+        require_auth();
+        db()->prepare("DELETE FROM settings WHERE key IN ('manager_pass_hash', 'manager_pass_set_at')")->execute();
+        out(['ok' => true]);
 
     case 'waiter_save':
         require_post();
@@ -416,7 +452,7 @@ switch ($action) {
         $q = $db->prepare('SELECT COUNT(*) FROM waiters WHERE deleted = 0 AND name = ? COLLATE NOCASE AND id <> ?');
         $q->execute([$name, $id]);
         if ((int)$q->fetchColumn() > 0) fail('Există deja un ospătar cu acest nume.');
-        if ($pass !== '') check_waiter_password($pass, $name);
+        if ($pass !== '') check_staff_password($pass);
         if ($id === 0) {
             if ((int)$db->query('SELECT COUNT(*) FROM waiters WHERE deleted = 0')->fetchColumn() >= MAX_WAITERS) fail('Poți avea maximum ' . MAX_WAITERS . ' ospătari. Șterge unul înainte să adaugi altul.');
             if ($pass === '') fail('Setează o parolă pentru ospătarul nou.');

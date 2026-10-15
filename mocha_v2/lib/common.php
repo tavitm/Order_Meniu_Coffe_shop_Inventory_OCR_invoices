@@ -84,29 +84,57 @@ function start_session(string $name, int $lifetime, int $idle = 0): void
     }
 }
 
+/** The admin password from config.php, or '' while it is not set up (shorter than 10 characters). */
+function admin_account(): string
+{
+    return mb_strlen(ADMIN_PASSWORD) >= 10 ? ADMIN_PASSWORD : '';
+}
+
+/** The inventory manager's password hash (set from Administrare → Angajați), '' when there is no such account. */
+function manager_hash(): string
+{
+    return (string)setting('manager_pass_hash', '');
+}
+
+/** Staff passwords (waiters, inventory manager) may be short, even digits only; the login lockouts do the protecting. */
+function check_staff_password(string $pass): void
+{
+    if (mb_strlen($pass) < 4) fail('Parola trebuie să aibă minimum 4 caractere.');
+}
+
 /**
- * Password login with lockouts: 5 failures per session and 20 per IP address in 15 minutes.
- * $expected may be the plain password or a password_hash() value ($2y$… / $argon2…).
+ * Password-only login against one or more accounts (['admin' => ADMIN_PASSWORD, 'manager' => $hash]); each value may
+ * be plain text or a password_hash() value ($2y$… / $argon2…). Lockouts in 15 minutes: 5 failures per session,
+ * 20 per IP address and, with $limitKey, 20 across all addresses together (a short staff password must not be
+ * guessable from many addresses). Starts the session with the matched account as "role" and returns it.
  */
-function password_login(string $expected, string $notSetMsg): void
+function password_login(array $accounts, string $notSetMsg, string $limitKey = ''): string
 {
     require_post();
-    if (mb_strlen($expected) < 10) fail($notSetMsg, 503);
+    $accounts = array_filter($accounts, fn($v) => is_string($v) && $v !== '');
+    if (!$accounts) fail($notSetMsg, 503);
     $now = time();
     $_SESSION['fails'] = array_values(array_filter($_SESSION['fails'] ?? [], fn($t) => $t > $now - 900));
     if (count($_SESSION['fails']) >= 5) fail('Prea multe încercări. Așteaptă 15 minute.', 429);
     rate_check('login-fail:' . client_ip(), 20, 900, 'Prea multe încercări greșite. Așteaptă 15 minute.');
+    if ($limitKey !== '') rate_check('login-fail:' . $limitKey, 20, 900, 'Prea multe încercări greșite. Așteaptă 15 minute.');
     $body = json_body();
     $pass = is_string($body['password'] ?? null) ? $body['password'] : '';
-    $hashed = str_starts_with($expected, '$2y$') || str_starts_with($expected, '$argon2');
-    if (!($hashed ? password_verify($pass, $expected) : hash_equals($expected, $pass))) {
+    $role = null;
+    foreach ($accounts as $name => $expected) {
+        $hashed = str_starts_with($expected, '$2y$') || str_starts_with($expected, '$argon2');
+        if ($hashed ? password_verify($pass, $expected) : hash_equals($expected, $pass)) { $role = (string)$name; break; }
+    }
+    if ($role === null) {
         $_SESSION['fails'][] = $now;
         rate_hit('login-fail:' . client_ip());
+        if ($limitKey !== '') rate_hit('login-fail:' . $limitKey);
         sleep(1);
         fail('Parolă greșită.', 401);
     }
     session_regenerate_id(true);
-    $_SESSION = ['auth' => true, 'csrf' => bin2hex(random_bytes(32)), 'login_at' => time()];
+    $_SESSION = ['auth' => true, 'role' => $role, 'csrf' => bin2hex(random_bytes(32)), 'login_at' => time()];
+    return $role;
 }
 
 function require_session_auth(): void
